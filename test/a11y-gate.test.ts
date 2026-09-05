@@ -9,6 +9,8 @@ import {
   getInterpolatedMotion,
   generateAmbientGlowCss,
   runA11ySuite,
+  auditReactNativeScreen,
+  runReactNativeScreenAuditSuite,
 } from '../src/index';
 
 describe('@intuitui-labs/a11y-gate Core Package', () => {
@@ -64,6 +66,64 @@ describe('Motion & Tactile Physics Architecture', () => {
   it('generates ambient radial glow CSS parameter strings', () => {
     const glow = generateAmbientGlowCss({ xPercent: 45, yPercent: 60, radiusPx: 400 });
     expect(glow).toContain('radial-gradient(400px circle at 45% 60%');
+  });
+});
+
+describe('React Native Screen Qualitative & Ergonomics Audit Gate', () => {
+  it('catches sub-14px micro-text, undersized touch targets, and cognitive friction', () => {
+    const badScreen = `
+      export function FlawedWelcome() {
+        return (
+          <View className="p-4">
+            <Text className="text-[10px] text-gray-500">Sub 14px caption</Text>
+            <Pressable className="py-1 px-2 bg-blue-500 rounded">
+              <Text className="text-[10px]">Tiny Button</Text>
+            </Pressable>
+            <Checkbox value="terms" />
+          </View>
+        );
+      }
+    `;
+
+    const result = auditReactNativeScreen(badScreen, 'FlawedWelcome');
+    expect(result.hasErrors).toBe(true);
+    expect(result.isCompliant).toBe(false);
+
+    const typo = result.findings.find((f) => f.rule === 'MOBILE_TYPOGRAPHY_FLOOR_14PX');
+    expect(typo).toBeDefined();
+
+    const touch = result.findings.find((f) => f.rule === 'TOUCH_TARGET_48DP_UNDERSIZED');
+    expect(touch).toBeDefined();
+
+    const friction = result.findings.find((f) => f.rule === 'COGNITIVE_FRICTION_CHECKBOX');
+    expect(friction).toBeDefined();
+  });
+
+  it('passes compliant mobile screens with >= 14px text and >= 48dp touch bounds', () => {
+    const goodScreen = `
+      export function ElegantSanctuaryWelcome() {
+        return (
+          <View className="flex-1 px-6 py-12">
+            <Text className="text-xl font-bold text-ink">Gurudevi Sanctuary</Text>
+            <Text className="text-base text-bark leading-relaxed">
+              A serene space for educators to breathe and grow.
+            </Text>
+            <Pressable
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              className="h-[52px] rounded-2xl bg-amber justify-center items-center"
+              accessibilityRole="button"
+              accessibilityLabel="Explore as Guest"
+            >
+              <Text className="text-base font-semibold text-white">Begin Journey</Text>
+            </Pressable>
+          </View>
+        );
+      }
+    `;
+
+    const result = auditReactNativeScreen(goodScreen, 'ElegantSanctuaryWelcome');
+    expect(result.hasErrors).toBe(false);
+    expect(result.isCompliant).toBe(true);
   });
 });
 

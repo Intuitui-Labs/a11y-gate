@@ -7,6 +7,10 @@
  * 3. Safe Area Inset Defensiveness (iOS notch / Dynamic Island / Android gesture bars)
  * 4. Mobile Typography Floor & Dynamic Type Tolerance (14px micro floor, text-wrap balance)
  * 5. Mobile Menu & Drawer Semantics (VoiceOver & TalkBack screen reader states)
+ * 6. React Native / Mobile Component & Screen Qualitative & Ergonomic Audits:
+ *    - Step 0: Qualitative UX Gate (Friction, cognitive load, desktop-era checkboxes, blocking modals)
+ *    - Step 1: Qualitative Visual Gate (Spatial hierarchy, nested card clutter, typography floor)
+ *    - Step 2: Quantitative Ergonomics Gate (48dp touch areas, hitSlop defense, accessibilityRole)
  */
 export interface MobileAuditConfig {
     name: string;
@@ -63,9 +67,56 @@ export declare function auditMobileTypographyFloor(html: string): TypographyAudi
  */
 export declare function auditMobileMenuSemantics(html: string): MenuSemanticsAuditResult;
 /**
- * Universal Mobile A11y & Touch Ergonomics Test Runner for Vitest / Jest
+ * Universal Mobile A11y & Touch Ergonomics Test Runner for HTML/Web
  */
 export declare function runMobileAuditSuite(config: MobileAuditConfig, testHooks: {
+    describe: Function;
+    it: Function;
+    expect: Function;
+}): void;
+export type AuditGateStage = 'step0_qualitative_ux' | 'step1_qualitative_visual' | 'step2_quantitative_ergonomics';
+export interface ReactNativeScreenFinding {
+    rule: string;
+    gate: AuditGateStage;
+    severity: 'error' | 'warning';
+    message: string;
+    occurrences: string[];
+}
+export interface ReactNativeScreenAuditResult {
+    screenName: string;
+    isCompliant: boolean;
+    hasErrors: boolean;
+    findings: ReactNativeScreenFinding[];
+    summary: {
+        errors: number;
+        warnings: number;
+    };
+}
+/**
+ * Audits React Native component source code for typography floor violations (< 14px).
+ */
+export declare function auditReactNativeTypography(sourceCode: string): ReactNativeScreenFinding | null;
+/**
+ * Audits interactive elements (Pressable, TouchableOpacity) for sub-48dp touch targets lacking hitSlop.
+ */
+export declare function auditReactNativeTouchTargets(sourceCode: string): ReactNativeScreenFinding | null;
+/**
+ * Audits Step 0 Qualitative UX patterns:
+ * - Detects mandatory desktop-era checkboxes blocking exploration.
+ * - Detects excessive nested card containers ("box-in-a-box").
+ */
+export declare function auditReactNativeQualitativeUx(sourceCode: string): ReactNativeScreenFinding[];
+/**
+ * Unified audit function for any React Native screen or component.
+ */
+export declare function auditReactNativeScreen(sourceCode: string, screenName?: string): ReactNativeScreenAuditResult;
+/**
+ * Universal React Native Screen Audit Test Suite for Vitest / Jest
+ */
+export declare function runReactNativeScreenAuditSuite(screens: {
+    name: string;
+    sourceCode: string;
+}[], testHooks: {
     describe: Function;
     it: Function;
     expect: Function;
