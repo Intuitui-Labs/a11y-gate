@@ -64,7 +64,7 @@ Because scoped packages are private by default on npm, you must explicitly pass 
 ### Option A: Interactive TTY (Standard)
 In your local terminal:
 ```bash
-cd C:\projects\packages\a11y-gate
+cd packages/a11y-gate
 npm publish --access public
 ```
 *The npm CLI will prompt you:*
@@ -76,7 +76,7 @@ Type the 6-digit code from your authenticator app and press Enter.
 ### Option B: Providing OTP via Flag
 If running from a script or terminal session:
 ```bash
-cd C:\projects\packages\a11y-gate
+cd packages/a11y-gate
 npm publish --access public --otp=123456
 ```
 *(Replace `123456` with your active 6-digit TOTP code before it expires).*
