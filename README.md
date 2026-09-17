@@ -1,3 +1,27 @@
+<p align="center">
+  <a href="https://www.npmjs.com/package/@intuitui-labs/a11y-gate">
+    <img src="https://img.shields.io/npm/v/@intuitui-labs/a11y-gate.svg?style=flat-square&color=black" alt="npm version" />
+  </a>
+  <a href="https://github.com/NeevSK/a11y-gate/actions/workflows/ci.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/NeevSK/a11y-gate/ci.yml?branch=main&style=flat-square" alt="build status" />
+  </a>
+  <a href="https://bundlephobia.com/package/@intuitui-labs/a11y-gate">
+    <img src="https://img.shields.io/bundlephobia/minzip/@intuitui-labs/a11y-gate?style=flat-square&color=blue" alt="bundle size" />
+  </a>
+  <a href="https://github.com/NeevSK/a11y-gate/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/license-MIT-green.svg?style=flat-square" alt="license" />
+  </a>
+  <a href="https://www.w3.org/WAI/GL/task-forces/silver/wiki/Visual_Contrast_of_Text_Subgroup">
+    <img src="https://img.shields.io/badge/W3C%20APCA-0.98G-6366f1?style=flat-square" alt="APCA contrast" />
+  </a>
+  <a href="https://vitest.dev/">
+    <img src="https://img.shields.io/badge/tested%20with-vitest%20v5-729B1B?style=flat-square" alt="vitest 5" />
+  </a>
+  <a href="https://www.npmjs.com/package/@intuitui-labs/a11y-gate">
+    <img src="https://img.shields.io/badge/types-TypeScript-blue?style=flat-square" alt="types" />
+  </a>
+</p>
+
 # @intuitui-labs/a11y-gate
 
 Mathematical accessibility, W3C APCA 0.98G contrast, Color Vision Deficiency (CVD) simulation, spatial harmony, and tactile motion architecture for modern design systems.
@@ -153,3 +177,8 @@ console.log(tactileSpring.bezier); // 'cubic-bezier(0.34, 1.56, 0.64, 1)'
 
 ## License
 MIT © Intuitui Labs & Neev Foundation
+
+## Documentation
+- [Testing Specifications & Evidence Protocol](docs/testing.md)
+- [NPM Publishing Guide](docs/publishing.md)
+- [Badges, Metrics & Quality Signals Landscape](docs/badges-and-metrics.md)
