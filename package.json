@@ -1,6 +1,6 @@
 {
   "name": "@intuitui-labs/a11y-gate",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Mathematical accessibility, APCA contrast, Color Vision Deficiency (CVD) simulation, and spatial harmony CI gate for design systems.",
   "type": "module",
   "sideEffects": false,
