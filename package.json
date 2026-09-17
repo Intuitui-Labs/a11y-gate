@@ -19,6 +19,21 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
+    "./web": {
+      "types": "./dist/web/index.d.ts",
+      "import": "./dist/web/index.js",
+      "default": "./dist/web/index.js"
+    },
+    "./mobile": {
+      "types": "./dist/mobile/index.d.ts",
+      "import": "./dist/mobile/index.js",
+      "default": "./dist/mobile/index.js"
+    },
+    "./wcag3": {
+      "types": "./dist/wcag3.d.ts",
+      "import": "./dist/wcag3.js",
+      "default": "./dist/wcag3.js"
+    },
     "./contrast": {
       "types": "./dist/contrast-math.d.ts",
       "import": "./dist/contrast-math.js",
@@ -28,11 +43,6 @@
       "types": "./dist/cvd-simulator.d.ts",
       "import": "./dist/cvd-simulator.js",
       "default": "./dist/cvd-simulator.js"
-    },
-    "./mobile": {
-      "types": "./dist/mobile-audit.d.ts",
-      "import": "./dist/mobile-audit.js",
-      "default": "./dist/mobile-audit.js"
     },
     "./spatial": {
       "types": "./dist/spatial-math.d.ts",

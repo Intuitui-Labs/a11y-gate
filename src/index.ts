@@ -1,8 +1,8 @@
 /**
  * @intuitui-labs/a11y-gate
  * Mathematical accessibility, APCA contrast, Color Vision Deficiency (CVD) simulation,
- * spatial harmony, tactile motion architecture, mobile visual audits, and platform-specific
- * validation for design systems.
+ * spatial harmony, tactile motion architecture, mobile visual audits, WCAG 3 candidate models,
+ * and platform-specific validation for design systems.
  */
 
 export * from './token-types.js';
@@ -13,3 +13,5 @@ export * from './motion-tactile.js';
 export * from './mobile-audit.js';
 export * from './platform-audit.js';
 export * from './test-runner.js';
+export * from './wcag3.js';
+export * from './mobile/index.js';

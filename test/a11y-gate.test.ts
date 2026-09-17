@@ -1,6 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import {
   getWcagContrastRatio,
+  getContrastPolarity,
+  evaluateWcag3,
+  checkMobileTouchTarget,
+  getTouchHitSlop,
+  validateDynamicTypography,
+  getBestText,
   calculateApca,
   getApcaFontMatrix,
   simulateCvd,
@@ -193,5 +199,79 @@ describe('Runtime Detector', () => {
   it('identifies current execution runtime', () => {
     const runtime = detectCurrentRuntime();
     expect(['node', 'browser', 'react-native']).toContain(runtime);
+  });
+});
+
+
+describe('WCAG 3 / APCA Exhaustive Conformance Engine (src/wcag3.ts)', () => {
+  it('identifies contrast polarity accurately (BoW vs WoB)', () => {
+    // Dark text on light background -> BoW
+    expect(getContrastPolarity('#111827', '#ffffff')).toBe('BoW');
+    // Light text on dark background -> WoB
+    expect(getContrastPolarity('#ffffff', '#111827')).toBe('WoB');
+  });
+
+  it('evaluates Gold, Silver, Bronze, and Component tiers', () => {
+    const gold = evaluateWcag3('#000000', '#ffffff');
+    expect(gold.level).toBe('Gold');
+    expect(gold.passesRole.body).toBe(true);
+    expect(gold.passesRole.headline).toBe(true);
+
+    const silver = evaluateWcag3('#475569', '#ffffff'); // medium slate
+    expect(['Silver', 'Gold']).toContain(silver.level);
+
+    const lowContrast = evaluateWcag3('#94a3b8', '#ffffff'); // light slate
+    expect(lowContrast.passesRole.body).toBe(false);
+  });
+
+  it('provides exhaustive font size recommendations across w100 to w900', () => {
+    const res = evaluateWcag3('#000000', '#ffffff');
+    expect(res.minFontMatrix.w100).toBeGreaterThan(res.minFontMatrix.w400);
+    expect(res.minFontMatrix.w400).toBeGreaterThanOrEqual(res.minFontMatrix.w700);
+    expect(res.minFontMatrix.w700).toBeGreaterThanOrEqual(res.minFontMatrix.w900);
+  });
+});
+
+describe('Headless Mobile & Touch Ergonomics (src/mobile/index.ts)', () => {
+  it('checks mobile touch targets with strict 48dp and compact 44pt standards', () => {
+    const iconOnly = checkMobileTouchTarget(24, 24, 'strict');
+    expect(iconOnly.passes).toBe(false);
+    expect(iconOnly.deficiency.width).toBe(24);
+    expect(iconOnly.deficiency.height).toBe(24);
+    expect(iconOnly.recommendedHitSlop.top).toBe(12);
+    expect(iconOnly.recommendedHitSlop.left).toBe(12);
+
+    const fullButton = checkMobileTouchTarget(48, 48, 'strict');
+    expect(fullButton.passes).toBe(true);
+    expect(fullButton.deficiency.width).toBe(0);
+  });
+
+  it('calculates touch hitSlop defensively', () => {
+    const hitSlop = getTouchHitSlop(24, 24, 48);
+    expect(hitSlop).toEqual({ top: 12, bottom: 12, left: 12, right: 12 });
+  });
+
+  it('validates dynamic typography and warns on sub-14px micro floors', () => {
+    const valid = validateDynamicTypography(16, 1.5);
+    expect(valid.passesFloor).toBe(true);
+    expect(valid.scaledSizePx).toBe(24);
+    expect(valid.isComfortable).toBe(true);
+    expect(valid.warning).toBeUndefined();
+
+    const subFloor = validateDynamicTypography(12, 1.0);
+    expect(subFloor.passesFloor).toBe(false);
+    expect(subFloor.warning).toContain('below minimum readable floor');
+
+    const extremeScale = validateDynamicTypography(16, 3.0);
+    expect(extremeScale.isComfortable).toBe(false);
+    expect(extremeScale.warning).toContain('exceeds comfortable mobile layout');
+  });
+
+  it('picks the best contrast text color prioritizing APCA score', () => {
+    const darkBgText = getBestText('#090d16', ['#2A2318', '#FCF9F2', '#FFFFFF', '#000000']);
+    expect(['#FFFFFF', '#FCF9F2']).toContain(darkBgText);
+
+    const lightBgText = getBestText('#ffffff', ['#2A2318', '#FCF9F2', '#FFFFFF', '#000000']);
+    expect(['#000000', '#2A2318']).toContain(lightBgText);
   });
 });

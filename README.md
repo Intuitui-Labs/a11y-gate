@@ -26,7 +26,7 @@
 
 > **Mathematical accessibility, W3C APCA 0.98G contrast, Color Vision Deficiency (CVD) simulation, spatial harmony, tactile motion architecture, and mobile ergonomics CI gate for design systems.**
 
-Developed by **Intuitui Labs & Neev Foundation**.
+Developed by **Intuitui Labs**.
 
 ---
 
@@ -86,7 +86,34 @@ yarn add @intuitui-labs/a11y-gate
 
 ---
 
-## 3. Quick Usage Example
+
+---
+
+## 3. Tree-Shakable Subpath Exports
+
+The package is partitioned into tree-shakable subpaths to keep web and mobile runtime footprints minimal:
+
+| Subpath | Target Environment | Core Exports |
+| :--- | :--- | :--- |
+| **`@intuitui-labs/a11y-gate`** | Universal / Node / Edge | Core APCA contrast math, WCAG 2.2, CVD cone matrices, Delta E, token types |
+| **`@intuitui-labs/a11y-gate/wcag3`** | Universal / Design Systems | Exhaustive WCAG 3 / APCA model: Gold/Silver/Bronze/Component scoring, polarity (BoW/WoB), w100–w900 font weight matrix |
+| **`@intuitui-labs/a11y-gate/mobile`** | React Native / iOS / Android | Headless touch target standards (48dp/44pt), defensive `getTouchHitSlop`, dynamic typography validation, `getBestText` candidate picker |
+| **`@intuitui-labs/a11y-gate/web`** | Browsers / Modern Web | Utopia fluid clamp token CSS generation, web safe-area CSS rules, CSS capabilities audits |
+| **`@intuitui-labs/a11y-gate/contrast`**| Universal Math | Standalone APCA 0.98G and WCAG 2.2 contrast calculation functions |
+| **`@intuitui-labs/a11y-gate/cvd`**     | Color Science | Brettel-Viénot LMS cone response simulations |
+
+```typescript
+// In React Native:
+import { checkMobileTouchTarget, getTouchHitSlop, getBestText } from '@intuitui-labs/a11y-gate/mobile';
+
+// In Design System or Tokens engine:
+import { evaluateWcag3 } from '@intuitui-labs/a11y-gate/wcag3';
+
+// In Web / CSS systems:
+import { generateFluidTokenVars, generateSafeAreaCssRules } from '@intuitui-labs/a11y-gate/web';
+```
+
+## 4. Quick Usage Example
 
 ```typescript
 import {
@@ -124,7 +151,7 @@ console.log(tactileSpring.bezier); // 'cubic-bezier(0.34, 1.56, 0.64, 1)'
 
 ---
 
-## 4. Documentation
+## 5. Documentation
 - [Testing Specifications & Evidence Protocol](docs/testing.md)
 - [NPM Publishing Guide](docs/publishing.md)
 - [Badges, Metrics & Quality Signals Landscape](docs/badges-and-metrics.md)
