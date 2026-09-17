@@ -52,3 +52,31 @@ export interface ApcaFontMatrix {
 }
 export declare function getApcaFontMatrix(absLc: number): ApcaFontMatrix;
 export declare function getDeltaE(color1: RGB | string, color2: RGB | string): number;
+export interface ContrastResult {
+    ratio: number;
+    apca: number;
+    passesAA: boolean;
+    passesAAA: boolean;
+    apcaRating: string;
+}
+/**
+ * Standardize hex color string.
+ */
+export declare function toHex(color: string): string;
+/**
+ * APCA Contrast calculation.
+ * Returns a score between -108 and 106.
+ */
+export declare function getAPCAContrast(fg: string, bg: string): number;
+/**
+ * APCA Level Rating based on score.
+ * Lc 90: Preferred for body text.
+ * Lc 75: Minimum for body text.
+ * Lc 60: Minimum for large text / headlines.
+ * Lc 45: Minimum for non-text graphics.
+ */
+export declare function getAPCARating(score: number): string;
+/**
+ * Unified accessibility check against WCAG 2.2 and WCAG 3 / APCA.
+ */
+export declare function checkAccessibility(fg: string, bg: string): ContrastResult;

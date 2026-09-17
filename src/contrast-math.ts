@@ -260,3 +260,75 @@ export function getDeltaE(color1: RGB | string, color2: RGB | string): number {
 
   return Math.round(Math.sqrt(2 * dr * dr + 4 * dg * dg + 3 * db * db) * 10) / 10;
 }
+
+
+export interface ContrastResult {
+  ratio: number;
+  apca: number;
+  passesAA: boolean;
+  passesAAA: boolean;
+  apcaRating: string;
+}
+
+/**
+ * Standardize hex color string.
+ */
+export function toHex(color: string): string {
+  try {
+    const rgb = hexToRgb(color);
+    return rgbToHex(rgb);
+  } catch {
+    return color.startsWith('#') ? color : `#${color}`;
+  }
+}
+
+/**
+ * APCA Contrast calculation.
+ * Returns a score between -108 and 106.
+ */
+export function getAPCAContrast(fg: string, bg: string): number {
+  try {
+    return calculateApca(fg, bg);
+  } catch {
+    return 0;
+  }
+}
+
+/**
+ * APCA Level Rating based on score.
+ * Lc 90: Preferred for body text.
+ * Lc 75: Minimum for body text.
+ * Lc 60: Minimum for large text / headlines.
+ * Lc 45: Minimum for non-text graphics.
+ */
+export function getAPCARating(score: number): string {
+  const abs = Math.abs(score);
+  if (abs >= 90) return 'Silver/Gold (Excellent)';
+  if (abs >= 75) return 'Bronze (Body Text Minimum)';
+  if (abs >= 60) return 'Large Text Minimum';
+  if (abs >= 45) return 'Graphic/UI Only';
+  return 'Fail';
+}
+
+/**
+ * Unified accessibility check against WCAG 2.2 and WCAG 3 / APCA.
+ */
+export function checkAccessibility(fg: string, bg: string): ContrastResult {
+  let ratio = 1;
+  let apca = 0;
+
+  try {
+    ratio = getWcagContrastRatio(fg, bg);
+    apca = calculateApca(fg, bg);
+  } catch (err) {
+    // Return safe default
+  }
+
+  return {
+    ratio,
+    apca,
+    passesAA: ratio >= 4.5,
+    passesAAA: ratio >= 7.0,
+    apcaRating: getAPCARating(apca),
+  };
+}
