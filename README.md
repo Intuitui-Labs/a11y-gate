@@ -1,28 +1,21 @@
-<p align="center">
-  <a href="https://www.npmjs.com/package/@intuitui-labs/a11y-gate">
-    <img src="https://img.shields.io/npm/v/@intuitui-labs/a11y-gate.svg?style=flat-square&color=black" alt="npm version" />
-  </a>
-  <a href="https://github.com/NeevSK/a11y-gate/actions/workflows/ci.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/NeevSK/a11y-gate/ci.yml?branch=main&style=flat-square" alt="build status" />
-  </a>
-  <a href="https://bundlephobia.com/package/@intuitui-labs/a11y-gate">
-    <img src="https://img.shields.io/bundlephobia/minzip/@intuitui-labs/a11y-gate?style=flat-square&color=blue" alt="bundle size" />
-  </a>
-  <a href="https://github.com/NeevSK/a11y-gate/blob/main/LICENSE">
-    <img src="https://img.shields.io/badge/license-MIT-green.svg?style=flat-square" alt="license" />
-  </a>
-  <a href="https://www.w3.org/WAI/GL/task-forces/silver/wiki/Visual_Contrast_of_Text_Subgroup">
-    <img src="https://img.shields.io/badge/W3C%20APCA-0.98G-6366f1?style=flat-square" alt="APCA contrast" />
-  </a>
-  <a href="https://vitest.dev/">
-    <img src="https://img.shields.io/badge/tested%20with-vitest%20v5-729B1B?style=flat-square" alt="vitest 5" />
-  </a>
-  <a href="https://www.npmjs.com/package/@intuitui-labs/a11y-gate">
-    <img src="https://img.shields.io/badge/types-TypeScript-blue?style=flat-square" alt="types" />
-  </a>
-</p>
+# Accessibility Gate (`@intuitui-labs/a11y-gate`)
 
-# @intuitui-labs/a11y-gate
+[![CI](https://github.com/Intuitui-Labs/a11y-gate/actions/workflows/ci.yml/badge.svg)](https://github.com/Intuitui-Labs/a11y-gate/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/@intuitui-labs/a11y-gate?style=flat-square&color=2563EB)](https://www.npmjs.com/package/@intuitui-labs/a11y-gate)
+[![Downloads](https://img.shields.io/npm/dm/@intuitui-labs/a11y-gate?style=flat-square&color=059669)](https://www.npmjs.com/package/@intuitui-labs/a11y-gate)
+[![Bundle Size](https://img.shields.io/bundlephobia/minzip/@intuitui-labs/a11y-gate?style=flat-square&color=7C3AED)](https://bundlephobia.com/package/@intuitui-labs/a11y-gate)
+[![W3C APCA](https://img.shields.io/badge/W3C%20APCA-0.98G%20(WCAG%203)-6366F1?style=flat-square)](https://www.w3.org/WAI/GL/task-forces/silver/wiki/Visual_Contrast_of_Text_Subgroup)
+[![Psychophysics Ratios](https://img.shields.io/badge/Psychophysics-Weber--Fechner%20Floors-EC4899?style=flat-square)](docs/psychophysical-ratio-doctrine.md)
+[![Swiss SILK](https://img.shields.io/badge/Architecture-Swiss%20SILK%20Canon-0EA5E9?style=flat-square)](docs/swiss-silk-architecture.md)
+[![Spatial Matrix](https://img.shields.io/badge/Spatial-2D%20Convolutional%20Matrix-F59E0B?style=flat-square)](docs/convolutional-spatial-matrix.md)
+[![CVD Simulation](https://img.shields.io/badge/CVD-Brettel%20%7C%20Machado%20LMS-10B981?style=flat-square)](docs/standards-and-wcag3-matrix.md)
+[![Cognitive Entropy](https://img.shields.io/badge/Cognition-Shannon%20Visual%20Entropy-8B5CF6?style=flat-square)](docs/cognitive-saliency-and-entropy.md)
+[![Universal Runtime](https://img.shields.io/badge/Runtime-Node%2018%2B%20%7C%20Web%20%7C%20React%20Native-0284C7?style=flat-square)](https://github.com/Intuitui-Labs/a11y-gate)
+[![Zero Dependencies](https://img.shields.io/badge/Dependencies-0%20(Pure%20Math)-16A34A?style=flat-square)](package.json)
+[![Tree-Shaking](https://img.shields.io/badge/Tree--Shaking-Pure%20ESM-8B5CF6?style=flat-square)](package.json)
+[![TypeScript](https://img.shields.io/badge/TypeScript-7.0.2-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vitest 5](https://img.shields.io/badge/tested%20with-Vitest%205%20(108%20passed)-729B1B?style=flat-square&logo=vitest&logoColor=white)](https://vitest.dev/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-D97706?style=flat-square)](LICENSE)
 
 > **Mathematical Accessibility, Pure-Ratio Psychophysics, 2D Convolutional Layout Spatial Matrix, W3C APCA 0.98G, Color Vision Deficiency (CVD) Simulation, Cognitive Clutter Metrics, and Swiss SILK Architecture CI Gate.**
 

@@ -37,7 +37,7 @@ This guide defines the complete landscape of repository badges, third-party badg
 | **11** | **Node & Browser** | Dual runtime compatibility (Node 18+, Modern Browsers, React Native) | `https://img.shields.io/node/v/@intuitui-labs/a11y-gate` |
 | **12** | **OpenSSF / Security** | Automated vulnerability and supply-chain audit | Socket.dev or OpenSSF Scorecard |
 | **13** | **Semantic Release** | Predictable SemVer release automation | Standardized release protocol |
-| **14** | **GitHub Stars** | Community popularity and engagement | `https://img.shields.io/github/stars/NeevSK/a11y-gate` |
+| **14** | **GitHub Stars** | Community popularity and engagement | `https://img.shields.io/github/stars/Intuitui-Labs/a11y-gate` |
 | **15** | **PRs Welcome** | Community openness to issues and contributions | Static badge |
 
 ---

@@ -110,6 +110,17 @@
   ],
   "author": "Intuitui Labs & Neev Foundation",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Intuitui-Labs/a11y-gate.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Intuitui-Labs/a11y-gate/issues"
+  },
+  "homepage": "https://github.com/Intuitui-Labs/a11y-gate#readme",
   "peerDependencies": {
     "vitest": ">=1.0.0"
   },

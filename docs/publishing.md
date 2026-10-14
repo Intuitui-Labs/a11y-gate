@@ -94,7 +94,7 @@ To avoid manual OTP prompts and enable continuous delivery on Git tags or releas
 4. **Bypass 2FA for Automation**: If allowed for your organization plan, enable 2FA bypass for automation tokens.
 
 ### Step 2: Store in GitHub Repository Secrets
-1. In the GitHub repository (`https://github.com/NeevSK/a11y-gate`), navigate to **Settings** → **Secrets and variables** → **Actions**.
+1. In the GitHub repository (`https://github.com/Intuitui-Labs/a11y-gate`), navigate to **Settings** → **Secrets and variables** → **Actions**.
 2. Create a new secret named:
    ```text
    NPM_TOKEN
