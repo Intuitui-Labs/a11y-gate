@@ -24,15 +24,28 @@
 
 # @intuitui-labs/a11y-gate
 
-> **Mathematical accessibility, W3C APCA 0.98G contrast, Color Vision Deficiency (CVD) simulation, spatial harmony, tactile motion architecture, and mobile ergonomics CI gate for design systems.**
+> **Mathematical Accessibility, Pure-Ratio Psychophysics, 2D Convolutional Layout Spatial Matrix, W3C APCA 0.98G, Color Vision Deficiency (CVD) Simulation, Cognitive Clutter Metrics, and Swiss SILK Architecture CI Gate.**
 
 Developed by **Intuitui Labs**.
 
 ---
 
-## 1. Installation
+## 1. Philosophical & Mathematical Foundation
 
-Install the canonical package from npm:
+Modern accessibility often obsesses over arbitrary static scalar thresholds ($16\text{px}$, $8\text{px}$, $4.5:1$). In contrast, **human visual perception and cognition operate exclusively on relative ratios ($I_1 / I_0$)**:
+
+- **Weber-Fechner Law ($\Delta I / I = k$)**: Perceived sensory change is proportional to initial intensity.
+- **Stevens' Power Law ($\psi = k \cdot I^\alpha$)**: Sensation scales non-linearly with physical stimulus magnitude.
+- **Modulation Transfer Function (MTF)**: Foveal optical diffraction blurs stroke stems below $1.25\text{px}$.
+- **Concentricity Canon**: Concentric rounded corners must satisfy $R_{\text{inner}} = \max(0, R_{\text{outer}} - \text{Padding})$.
+
+`@intuitui-labs/a11y-gate` is built from the ground up to enforce these laws mathematically in automated CI/CD pipelines.
+
+---
+
+## 2. Installation
+
+Install the canonical package:
 
 ```bash
 # Using pnpm
@@ -47,116 +60,124 @@ yarn add @intuitui-labs/a11y-gate
 
 ---
 
-## 2. Features & Capabilities
+## 3. Core Modules & Capabilities
 
-### Mathematical Contrast & Perceptual Color Optics
-- **WCAG 2.1 / 2.2 Relative Luminance & Contrast Ratio**: Standard ISO 9241-306 contrast calculations.
-- **W3C APCA 0.98G (WCAG 3 Candidate)**: Perceptually uniform lightness contrast ($L_c$) with dynamic font-weight/font-size lookup matrix.
-- **Color Vision Deficiency (CVD) Simulation**: Full Brettel-Viénot / Machado LMS cone transformation for Deuteranopia, Protanopia, Tritanopia, and Achromatopsia.
+### 3.1 Pure-Ratio Psychophysical Doctrine
+- **Non-Uniform Dynamic Type Power Law**: Headings scale sub-linearly ($\alpha = 0.65 - 0.78$) while body and captions scale super-linearly ($\alpha = 1.05 - 1.22$).
+- **Optical Stem Thickness Floor**: Calculates physical stroke width $W_{\text{stem}}$ to prevent subpixel diffraction blur ($W_{\text{stem}} \ge 1.25\text{px}$).
+- **Gestalt Proximity & Heading Clinging**: Margin-top must be $\ge 2.0\times$ margin-bottom so headings physically cling to their content sections.
+- **Concentric Corner Radius**: Enforces $R_{\text{inner}} = \max(0, R_{\text{outer}} - \text{Padding})$.
+- **Focus Ring Offset & Stroke**: Enforces $\ge 2\text{px}$ stroke and $\ge 2\text{px}$ offset to prevent control border occlusion.
+- **Harmonic Aspect Ratio Canon**: Validates card and modal dimensions against 1:1, 4:3, $\sqrt{2}$, 3:2, $\phi$ (Golden Ratio), and 16:9.
 
-### Spatial Rhythm & Typographic Geometry
-- **Utopia Fluid Clamp Formulas**: Generates exact CSS `clamp(min, preferred, max)` interpolation strings.
-- **Base-8 Quantum Grid Multiples**: Validates padding, margin, and layout intervals against 4px / 8px baselines.
-- **Touch Target Geometry**: Validates minimum interactive dimensions ($\ge 44\text{px}$ / $48\text{px}$).
+### 3.2 2D Convolutional Spatial Matrix
+- **Touch Overlap Kernels ($K_{\text{overlap}}$)**: 2D discrete convolution identifies overlapping hit target zones and accidental tap risks.
+- **Visual Reading Flow DAG**: Topological sorting verifies intuitive, un-fragmented reading order.
+- **Occlusion Detection**: Identifies floating sheets, toolbars, or headers that occlude active controls.
 
-### Motion & Tactile Spring Physics
-- **Tiered Spring Presets**: `subtle` (150ms), `tactile` (220ms), `expressive` (320ms).
-- **Continuous Gradient Interpolation**: `getInterpolatedMotion(0.0 to 1.0)`.
-- **Ambient Surface Illumination**: `generateAmbientGlowCss(...)`.
-- **WCAG 2.2 SC 2.3.3 Reduced Motion Safety**: Universal `@media (prefers-reduced-motion: reduce)` harness.
+### 3.3 Cognitive Saliency & Visual Clutter
+- **Cognitive Clutter Index ($CCI$)**: Quantifies layout density and bounding box noise.
+- **Shannon Layout Entropy**: Measures chaotic spatial line fragments.
+- **Dual-Encoding Audit**: Enforces multi-channel signaling (color + icon + text) per WCAG 2.2 SC 1.4.1.
 
-### Automated CI Gate Runner
-- **One-Line Vitest/Jest Integration**:
-  ```typescript
-  import { describe, it, expect } from 'vitest';
-  import { runA11ySuite } from '@intuitui-labs/a11y-gate';
-  import { MY_TOKENS, MY_TYPE_SCALE } from './tokens';
+### 3.4 Swiss Graphic Doctrine & SILK Architecture
+- **Jan Tschichold Golden Canon**: Optical page margin balance ($2:3:4:6$).
+- **Base-8 Quantum Grid**: Strict $8\text{px} / 4\text{px}$ modular spacing rhythm.
+- **Harmonic Font Scales**: Golden, Silver, and Swiss geometric typography ladders.
 
-  runA11ySuite(
-    {
-      name: 'Design System Audit',
-      tokens: MY_TOKENS,
-      typeScale: MY_TYPE_SCALE,
-      minimumMicroPx: 14,
-      testCvd: true,
-    },
-    { describe, it, expect }
-  );
-  ```
+### 3.5 Mathematical Contrast & Color Science
+- **W3C APCA 0.98G (WCAG 3 Candidate)**: Lightness contrast ($L_c$) with continuous font-weight (100–900) lookup matrix.
+- **WCAG 2.1 / 2.2 Relative Luminance**: Standard ISO 9241-306 contrast calculations.
+- **Color Vision Deficiency (CVD) Simulation**: Full Brettel-Viénot / Machado LMS cone transformations (Deuteranopia, Protanopia, Tritanopia, Achromatopsia).
+- **Chromostereopsis Hazard Detection**: Prevents saturated red/blue optical depth vibration.
 
 ---
 
+## 4. Quickstart Examples
 
----
-
-## 3. Tree-Shakable Subpath Exports
-
-The package is partitioned into tree-shakable subpaths to keep web and mobile runtime footprints minimal:
-
-| Subpath | Target Environment | Core Exports |
-| :--- | :--- | :--- |
-| **`@intuitui-labs/a11y-gate`** | Universal / Node / Edge | Core APCA contrast math, WCAG 2.2, CVD cone matrices, Delta E, token types |
-| **`@intuitui-labs/a11y-gate/wcag3`** | Universal / Design Systems | Exhaustive WCAG 3 / APCA model: Gold/Silver/Bronze/Component scoring, polarity (BoW/WoB), w100–w900 font weight matrix |
-| **`@intuitui-labs/a11y-gate/mobile`** | React Native / iOS / Android | Headless touch target standards (48dp/44pt), defensive `getTouchHitSlop`, dynamic typography validation, `getBestText` candidate picker |
-| **`@intuitui-labs/a11y-gate/web`** | Browsers / Modern Web | Utopia fluid clamp token CSS generation, web safe-area CSS rules, CSS capabilities audits |
-| **`@intuitui-labs/a11y-gate/contrast`**| Universal Math | Standalone APCA 0.98G and WCAG 2.2 contrast calculation functions |
-| **`@intuitui-labs/a11y-gate/cvd`**     | Color Science | Brettel-Viénot LMS cone response simulations |
-
+### 4.1 Running a Pure-Ratio Psychophysical Audit
 ```typescript
-// In React Native:
-import { checkMobileTouchTarget, getTouchHitSlop, getBestText } from '@intuitui-labs/a11y-gate/mobile';
+import { auditPsychophysicalRatios } from '@intuitui-labs/a11y-gate';
 
-// In Design System or Tokens engine:
-import { evaluateWcag3 } from '@intuitui-labs/a11y-gate/wcag3';
+const result = auditPsychophysicalRatios({
+  viewportWidthPx: 390,
+  viewportHeightPx: 844,
+  canvasMarginHorizontalPx: 20, // 5.1% (>= 4%)
+  contentWidthPx: 350,
 
-// In Web / CSS systems:
-import { generateFluidTokenVars, generateSafeAreaCssRules } from '@intuitui-labs/a11y-gate/web';
+  interContainerGutterPx: 16,
+  intraContainerPaddingPx: 16, // 1.0 (>= 0.75)
+
+  labelToInputGapPx: 6,
+  inputToNextGroupGapPx: 18, // 3.0 (>= 1.50)
+
+  headingMarginTopPx: 24,
+  headingMarginBottomPx: 8, // 3.0 (>= 2.00)
+
+  fontSizePx: 15,
+  fontWeight: 500,
+  lineHeightPx: 24,
+  colorHex: '#0F172A',
+  bgHex: '#FFFFFF',
+  role: 'body',
+
+  touchHitDimensionPx: 48,
+  visualGlyphDimensionPx: 20,
+});
+
+console.log(result.passes); // true
+console.log(result.score);  // 100
 ```
 
-## 4. Quick Usage Example
-
+### 4.2 Non-Uniform Dynamic Type Scaling
 ```typescript
-import {
-  getWcagContrastRatio,
-  calculateApca,
-  getApcaFontMatrix,
-  simulateCvdHex,
-  generateFluidClamp,
-  SPRING_PRESETS,
-  getInterpolatedMotion,
-} from '@intuitui-labs/a11y-gate';
+import { computeNonUniformDynamicScale } from '@intuitui-labs/a11y-gate';
 
-// 1. WCAG 2.2 AAA Check
-const ratio = getWcagContrastRatio('#090d16', '#ffffff'); // 19.8:1
+// User requests 1.6x accessibility text bump:
+const display = computeNonUniformDynamicScale({
+  baseFontSizePx: 34,
+  scaleFactor: 1.6,
+  role: 'display',
+});
+console.log(display.scaledFontSizePx); // 46.1px (sub-linear, prevents overflow)
 
-// 2. APCA Lightness Contrast Score
-const lc = calculateApca('#090d16', '#ffffff'); // Lc 106.2
+const caption = computeNonUniformDynamicScale({
+  baseFontSizePx: 12,
+  scaleFactor: 1.6,
+  role: 'caption',
+});
+console.log(caption.scaledFontSizePx); // 21.3px (super-linear, protects legibility)
+```
 
-// 3. Official W3C APCA Minimum Font Size Recommendation
-const fontMatrix = getApcaFontMatrix(Math.abs(lc));
-console.log(fontMatrix.w400); // 14px (Regular)
-console.log(fontMatrix.w700); // 11px (Bold)
+### 4.3 Concentric Corner Radius Audit
+```typescript
+import { auditConcentricCornerRadius } from '@intuitui-labs/a11y-gate';
 
-// 4. Color-Blindness Simulation (Brettel LMS Cone Response)
-const deuteranopiaHex = simulateCvdHex('#2563eb', 'deuteranopia');
+const card = auditConcentricCornerRadius({
+  outerRadiusPx: 24,
+  innerRadiusPx: 8,
+  paddingPx: 16, // Ideal: 24 - 16 = 8px
+});
 
-// 5. Utopia Fluid Clamp CSS String
-const clamp = generateFluidClamp({ minSizePx: 16, maxSizePx: 24 });
-// -> clamp(1.0000rem, 0.8182rem + 0.9091vi, 1.5000rem)
-
-// 6. Spring Physics Token
-const tactileSpring = SPRING_PRESETS.tactile;
-console.log(tactileSpring.bezier); // 'cubic-bezier(0.34, 1.56, 0.64, 1)'
+console.log(card.passes); // true
 ```
 
 ---
 
-## 5. Documentation
+## 5. Exhaustive Documentation Suite
+
+- [Pure-Ratio Psychophysical Doctrine](docs/psychophysical-ratio-doctrine.md)
+- [Hotspot Dynamics, Affordance Diversity & Adaptive Density](docs/hotspot-diversity-and-density.md)
+- [Convolutional Spatial Affordance Matrix](docs/convolutional-spatial-matrix.md)
+- [Cognitive Saliency & Visual Clutter Architecture](docs/cognitive-saliency-and-entropy.md)
+- [Swiss Graphic Doctrine & SILK Architecture](docs/swiss-silk-architecture.md)
+- [Regulatory Standards & WCAG 3 Matrix](docs/standards-and-wcag3-matrix.md)
 - [Testing Specifications & Evidence Protocol](docs/testing.md)
-- [NPM Publishing Guide](docs/publishing.md)
 - [Badges, Metrics & Quality Signals Landscape](docs/badges-and-metrics.md)
+- [NPM Publishing Guide](docs/publishing.md)
 
 ---
 
 ## License
+
 MIT © Intuitui Labs & Neev Foundation

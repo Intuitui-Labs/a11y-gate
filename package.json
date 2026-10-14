@@ -69,7 +69,22 @@
       "import": "./dist/token-types.js",
       "default": "./dist/token-types.js"
     },
-    "./styles/*": "./src/styles/*"
+    "./styles/*": "./src/styles/*",
+    "./swiss-silk": {
+      "types": "./dist/swiss-silk.d.ts",
+      "import": "./dist/swiss-silk.js",
+      "default": "./dist/swiss-silk.js"
+    },
+    "./baseline": {
+      "types": "./dist/axe-baseline.d.ts",
+      "import": "./dist/axe-baseline.js",
+      "default": "./dist/axe-baseline.js"
+    },
+    "./convolutional": {
+      "types": "./dist/convolutional-spatial.d.ts",
+      "import": "./dist/convolutional-spatial.js",
+      "default": "./dist/convolutional-spatial.js"
+    }
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
