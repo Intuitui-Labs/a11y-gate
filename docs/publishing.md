@@ -43,8 +43,8 @@ pnpm build
 We follow [Semantic Versioning (SemVer)](https://semver.org/):
 - **Initial release** (`0.1.0`): Initial public release of APCA, CVD simulation, spatial harmony, and mobile ergonomics audit engine.
 - **Patch release** (`0.1.0` → `0.1.1`): Bug fixes, token formula updates, non-breaking type adjustments.
-- **Minor release** (`0.1.1` → `0.2.0`): Backward-compatible new features (e.g., new color space adapters, WCAG 3 drafts).
-- **Major release** (`0.2.0` → `1.0.0`): Breaking API changes or mathematical formula deprecations.
+- **Minor release** (`0.2.0` → `0.3.0`): Backward-compatible new features (e.g., Pure-Ratio Doctrine, SILK, Hotspot Diversity, Saliency, Standards Matrix).
+- **Major release** (`0.3.0` → `1.0.0`): Breaking API changes or mathematical formula deprecations.
 
 To bump the version:
 ```bash
