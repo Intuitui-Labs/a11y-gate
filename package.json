@@ -108,7 +108,7 @@
     "spatial-grid",
     "fluid-typography"
   ],
-  "author": "Intuitui Labs & Neev Foundation",
+  "author": "Intuitui Labs",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
