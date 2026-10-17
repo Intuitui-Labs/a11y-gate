@@ -45,3 +45,41 @@ export declare function runPlatformSuite(options: PlatformAuditOptions, testHook
     it: Function;
     expect: Function;
 }): void;
+export interface ThemeTokenSet {
+    name: string;
+    background: string;
+    surface: string;
+    textPrimary: string;
+    textSecondary: string;
+    textMuted: string;
+    primaryCtaBg: string;
+    primaryCtaFg: string;
+    border?: string;
+}
+export interface ThemePairContrastSummary {
+    wcag: number;
+    apca: number;
+    passes: boolean;
+}
+export interface ThemeAuditResult {
+    themeName: string;
+    passes: boolean;
+    violations: string[];
+    contrastMatrix: {
+        textPrimaryOnBg: ThemePairContrastSummary;
+        textPrimaryOnSurface: ThemePairContrastSummary;
+        textSecondaryOnBg: ThemePairContrastSummary;
+        textSecondaryOnSurface: ThemePairContrastSummary;
+        textMutedOnBg: ThemePairContrastSummary;
+        ctaTextOnCtaBg: ThemePairContrastSummary;
+        ctaBgOnSurface: ThemePairContrastSummary;
+    };
+    cvdPasses: boolean;
+    hasChromostereopsisHazard: boolean;
+}
+/**
+ * Validates a complete theme color token set across WCAG 2.2, APCA 0.98G,
+ * simulated Color Vision Deficiency (Deuteranopia, Protanopia, Tritanopia),
+ * and chromostereopsis retinal dispersion hazards.
+ */
+export declare function auditThemeTokenSet(theme: ThemeTokenSet): ThemeAuditResult;

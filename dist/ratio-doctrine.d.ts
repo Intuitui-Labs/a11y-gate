@@ -26,11 +26,11 @@ export declare const PSYCHOPHYSICAL_RATIOS: {
     readonly LEADING_BODY_MAX: 1.68;
     readonly LEADING_HEADING_MIN: 1.12;
     readonly LEADING_HEADING_MAX: 1.3;
-    readonly TRACKING_MICRO_MIN_EM: 0.025;
+    readonly TRACKING_MICRO_MIN_EM: 0.02;
     readonly TRACKING_DISPLAY_MAX_EM: 0.005;
     readonly APCA_MICRO_COPY_MIN: 70;
     readonly APCA_BODY_READING_MIN: 75;
-    readonly APCA_CONTROLS_MIN: 60;
+    readonly APCA_CONTROLS_MIN: 65;
     readonly CONCENTRIC_RADIUS_TOLERANCE_PX: 2;
     readonly FOCUS_RING_STROKE_MIN_PX: 2;
     readonly FOCUS_RING_OFFSET_MIN_PX: 2;
@@ -85,6 +85,7 @@ export interface PsychophysicalRatioAuditInput {
     readingMeasureChars?: number;
     interContainerGutterPx: number;
     intraContainerPaddingPx: number;
+    childGapPx?: number;
     labelToInputGapPx?: number;
     inputToNextGroupGapPx?: number;
     headingMarginTopPx?: number;
@@ -106,9 +107,11 @@ export interface PsychophysicalRatioAuditResult {
         canvasMarginRatio: number;
         whitespaceRatio: number;
         spatialHierarchyRatio: number;
+        gestaltEnclosureRatio?: number;
         gestaltProximityRatio?: number;
         headingClingingRatio?: number;
         leadingRatio?: number;
+        letterSpacingEm?: number;
         touchToGlyphRatio?: number;
         apcaContrastLc?: number;
     };
@@ -169,4 +172,14 @@ export declare function auditHarmonicAspectRatio(spec: HarmonicAspectRatioSpec):
 export declare function auditChromostereopsisHazard(colorHex1: string, colorHex2: string): {
     hasHazard: boolean;
     violation?: string;
+};
+/**
+ * 9. Quantum Snapping & Remediation Hint Generator
+ * Computes exact nearest floor and ceiling multiples of the spatial quantum (e.g. 4px or 8px)
+ */
+export declare function getNearestQuantumRemediation(currentPx: number, quantumPx?: number): {
+    isAligned: boolean;
+    nearestFloorPx: number;
+    nearestCeilPx: number;
+    recommendation: string;
 };

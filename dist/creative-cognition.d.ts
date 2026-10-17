@@ -32,6 +32,8 @@ export interface VisualSaliencyResult {
  * Computes whether the primary call to action has the highest visual energy in the viewport.
  */
 export declare function evaluateVisualSaliency(targets: InteractiveVisualTarget[]): VisualSaliencyResult;
+export type CtaDominanceResult = VisualSaliencyResult;
+export declare const evaluateCtaVisualDominance: typeof evaluateVisualSaliency;
 export interface ViewportEntropySpec {
     viewportWidthPx: number;
     viewportHeightPx: number;
@@ -71,6 +73,7 @@ export interface ThumbZoneErgonomicsResult {
  * Origin: Bottom-Right thumb pivot (x = viewportWidth * 0.9, y = viewportHeight * 0.95)
  */
 export declare function evaluateThumbZoneErgonomics(target: MobileThumbTarget): ThumbZoneErgonomicsResult;
+export declare const evaluatePolarThumbArc: typeof evaluateThumbZoneErgonomics;
 export interface CvdStateSpec {
     id: string;
     state: 'active' | 'selected' | 'error' | 'disabled';

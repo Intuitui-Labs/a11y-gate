@@ -21,5 +21,7 @@ export * from './standards-matrix.js';
 export * from './cognitive-saliency.js';
 export * from './ratio-doctrine.js';
 export * from './hotspot-diversity.js';
+export * from './comprehensive-gate.js';
+export * from './schema-adapter.js';
 // Creative cognition additions
-export { auditCvdDualEncoding, evaluateCognitiveEntropy, } from './creative-cognition.js';
+export { auditCvdDualEncoding, evaluateCognitiveEntropy, evaluateCtaVisualDominance, evaluatePolarThumbArc, } from './creative-cognition.js';

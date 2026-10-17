@@ -38,7 +38,7 @@ export function runA11ySuite(config: GateConfig, { describe, it, expect }: TestR
     });
 
     if (config.testCvd !== false) {
-      it('certifies that token pairs maintain >= 4.0:1 contrast under simulated Deuteranopia & Protanopia', () => {
+      it('certifies that token pairs maintain >= 4.0:1 contrast under simulated Deuteranopia, Protanopia & Tritanopia', () => {
         for (const pair of config.tokens) {
           // Test pairs meant for text
           if ((pair.expectedWcagMin ?? 4.5) >= 4.5) {
@@ -58,6 +58,15 @@ export function runA11ySuite(config: GateConfig, { describe, it, expect }: TestR
             expect(
               protRatio,
               `Token pair [${pair.id}] failed Protanopia (red-blind) contrast check! Got ${protRatio}:1`
+            ).toBeGreaterThanOrEqual(4.0);
+
+            const tritfg = simulateCvdHex(pair.fg, 'tritanopia');
+            const tritbg = simulateCvdHex(pair.bg, 'tritanopia');
+            const tritRatio = getWcagContrastRatio(tritfg, tritbg);
+
+            expect(
+              tritRatio,
+              `Token pair [${pair.id}] failed Tritanopia (blue-blind) contrast check! Got ${tritRatio}:1`
             ).toBeGreaterThanOrEqual(4.0);
           }
         }

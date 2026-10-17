@@ -7,8 +7,10 @@
  * - 'react-native': Token contrast, 48dp targets, Reanimated spring physics
  * - 'universal': Multi-platform verification
  */
-import { getWcagContrastRatio } from './contrast-math.js';
+import { getWcagContrastRatio, calculateApca } from './contrast-math.js';
 import { SPRING_PRESETS } from './motion-tactile.js';
+import { simulateCvdHex } from './cvd-simulator.js';
+import { auditChromostereopsisHazard } from './ratio-doctrine.js';
 /**
  * 1. Runtime Platform Environment Detector
  */
@@ -125,4 +127,83 @@ export function runPlatformSuite(options, testHooks) {
             });
         });
     });
+}
+/**
+ * Validates a complete theme color token set across WCAG 2.2, APCA 0.98G,
+ * simulated Color Vision Deficiency (Deuteranopia, Protanopia, Tritanopia),
+ * and chromostereopsis retinal dispersion hazards.
+ */
+export function auditThemeTokenSet(theme) {
+    const violations = [];
+    const evaluatePair = (label, fg, bg, minWcag, minApca) => {
+        try {
+            const wcag = getWcagContrastRatio(fg, bg);
+            const apca = Math.round(Math.abs(calculateApca(fg, bg)) * 10) / 10;
+            const passes = wcag >= minWcag && apca >= minApca;
+            if (!passes) {
+                violations.push(`Theme [${theme.name}] ${label}: contrast (WCAG ${wcag}:1, APCA |Lc| ${apca}) fails requirements (min WCAG ${minWcag}:1, APCA ${minApca}).`);
+            }
+            return { wcag, apca, passes };
+        }
+        catch (err) {
+            violations.push(`Theme [${theme.name}] ${label}: invalid color format (${err?.message ?? 'malformed hex'}).`);
+            return { wcag: 1, apca: 0, passes: false };
+        }
+    };
+    const textPrimaryOnBg = evaluatePair('Primary text on background', theme.textPrimary, theme.background, 4.5, 75);
+    const textPrimaryOnSurface = evaluatePair('Primary text on surface', theme.textPrimary, theme.surface, 4.5, 75);
+    const textSecondaryOnBg = evaluatePair('Secondary text on background', theme.textSecondary, theme.background, 4.5, 60);
+    const textSecondaryOnSurface = evaluatePair('Secondary text on surface', theme.textSecondary, theme.surface, 4.5, 60);
+    const textMutedOnBg = evaluatePair('Muted text on background', theme.textMuted, theme.background, 3.0, 45);
+    const ctaTextOnCtaBg = evaluatePair('CTA text on CTA background', theme.primaryCtaFg, theme.primaryCtaBg, 4.5, 65);
+    const ctaBgOnSurface = evaluatePair('CTA button on surface', theme.primaryCtaBg, theme.surface, 3.0, 45);
+    // CVD Simulation on Primary Text vs Background
+    const cvdTypes = ['deuteranopia', 'protanopia', 'tritanopia'];
+    let cvdPasses = true;
+    for (const cvd of cvdTypes) {
+        try {
+            const simFg = simulateCvdHex(theme.textPrimary, cvd);
+            const simBg = simulateCvdHex(theme.background, cvd);
+            const simRatio = getWcagContrastRatio(simFg, simBg);
+            if (simRatio < 4.0) {
+                cvdPasses = false;
+                violations.push(`Theme [${theme.name}] primary text failed ${cvd} CVD simulation contrast (got ${simRatio}:1, min 4.0:1 required).`);
+            }
+        }
+        catch {
+            cvdPasses = false;
+            violations.push(`Theme [${theme.name}] CVD simulation error for ${cvd}.`);
+        }
+    }
+    // Chromostereopsis check between CTA brand color and background/surface
+    let hasChromostereopsisHazard = false;
+    try {
+        const ctaBgHazard = auditChromostereopsisHazard(theme.primaryCtaBg, theme.background);
+        const ctaSurfaceHazard = auditChromostereopsisHazard(theme.primaryCtaBg, theme.surface);
+        hasChromostereopsisHazard = ctaBgHazard.hasHazard || ctaSurfaceHazard.hasHazard;
+        if (hasChromostereopsisHazard) {
+            const hazardMsg = ctaBgHazard.violation ?? ctaSurfaceHazard.violation;
+            if (hazardMsg)
+                violations.push(`Theme [${theme.name}] ${hazardMsg}`);
+        }
+    }
+    catch {
+        // Malformed color already handled in evaluatePair
+    }
+    return {
+        themeName: theme.name,
+        passes: violations.length === 0,
+        violations,
+        contrastMatrix: {
+            textPrimaryOnBg,
+            textPrimaryOnSurface,
+            textSecondaryOnBg,
+            textSecondaryOnSurface,
+            textMutedOnBg,
+            ctaTextOnCtaBg,
+            ctaBgOnSurface,
+        },
+        cvdPasses,
+        hasChromostereopsisHazard,
+    };
 }

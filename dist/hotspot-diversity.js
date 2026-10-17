@@ -11,6 +11,8 @@
 /**
  * Computes the Affordance Diversity Quotient (ADQ) of a form step.
  * Prevents "Grey Soup Syndrome" where users are subjected to endless identical text inputs.
+ * Enforces consecutive monotony threshold to break up long runs of repetitive inputs.
+ * Exempts short cohesive steps (<= 5 fields) to prevent false-positive CI blockers on standard forms.
  */
 export function auditAffordanceDiversity(spec) {
     const totalFields = spec.fieldModalities.length;
@@ -20,29 +22,64 @@ export function auditAffordanceDiversity(spec) {
             adq: 1.0,
             uniqueModalities: [],
             totalFields: 0,
+            maxConsecutiveMonotony: 0,
             hasRepetitionSuppressionHazard: false,
+            severity: 'none',
         };
     }
     const uniqueModalities = Array.from(new Set(spec.fieldModalities));
     const adq = Math.round((uniqueModalities.length / totalFields) * 100) / 100;
     const threshold = spec.minAdqThreshold ?? 0.35;
-    // Repetition suppression is critical when step has > 3 fields and ADQ is low
-    const hasRepetitionSuppressionHazard = totalFields >= 4 && adq < threshold;
+    const maxConsecutiveThreshold = spec.maxConsecutiveMonotonyThreshold ?? 3;
+    const minFields = spec.minFieldsForSuppressionHazard ?? 6;
+    const isExempt = !!spec.isCohesiveSemanticGroup || totalFields < minFields;
+    // Calculate maximum consecutive streak of identical interaction modality
+    let maxConsecutiveMonotony = 0;
+    let currentStreak = 0;
+    let lastModality;
+    let mostMonotonousModality;
+    for (const mod of spec.fieldModalities) {
+        if (mod === lastModality) {
+            currentStreak++;
+        }
+        else {
+            currentStreak = 1;
+            lastModality = mod;
+        }
+        if (currentStreak > maxConsecutiveMonotony) {
+            maxConsecutiveMonotony = currentStreak;
+            mostMonotonousModality = mod;
+        }
+    }
+    // Repetition suppression applies only on non-exempt forms with sufficient field volume (>= minFields):
+    // 1. Overall ADQ is below threshold, OR
+    // 2. Maximum consecutive identical streak exceeds threshold (e.g. > 3 identical fields in a row)
+    const isAdqViolated = !isExempt && adq < threshold;
+    const isMonotonyStreakViolated = !isExempt && maxConsecutiveMonotony > maxConsecutiveThreshold;
+    const hasRepetitionSuppressionHazard = isAdqViolated || isMonotonyStreakViolated;
     const passes = !hasRepetitionSuppressionHazard;
-    let violation;
-    let recommendation;
-    if (hasRepetitionSuppressionHazard) {
-        violation = `Affordance Diversity Quotient (ADQ: ${adq}) is below threshold (${threshold}) for step "${spec.stepId ?? 'unnamed'}". With ${totalFields} fields and only ${uniqueModalities.length} interaction modality (${uniqueModalities.join(', ')}), users experience cognitive repetition suppression and scanning fatigue.`;
-        recommendation = `Introduce interactive modality diversity: replace binary text inputs with tap-pills, pair coupled fields into dual-column rows, or provide 1-tap preset chips.`;
+    const severity = hasRepetitionSuppressionHazard ? (totalFields >= 10 ? 'warning' : 'advisory') : 'none';
+    const violations = [];
+    const recommendations = [];
+    if (isAdqViolated) {
+        violations.push(`[Affordance UX Advisory] Affordance Diversity Quotient (ADQ: ${adq}) is below threshold (${threshold}) for step "${spec.stepId ?? 'unnamed'}". With ${totalFields} fields and only ${uniqueModalities.length} interaction modality (${uniqueModalities.join(', ')}), users experience cognitive repetition suppression and scanning fatigue. Consider interspersing interactive variety on long steps.`);
+        recommendations.push(`Introduce interactive modality diversity: replace binary text inputs with tap-pills, pair coupled fields into dual-column rows, or provide 1-tap preset chips.`);
+    }
+    if (isMonotonyStreakViolated) {
+        violations.push(`[Affordance UX Advisory] Cognitive Monotony Streak: Detected ${maxConsecutiveMonotony} consecutive fields with identical interaction modality ("${mostMonotonousModality}"). Limit contiguous identical inputs to <= ${maxConsecutiveThreshold} on long forms.`);
+        recommendations.push(`Interleave interaction modalities: break up long runs of "${mostMonotonousModality}" inputs with segment selectors, steppers, or visual cards.`);
     }
     return {
         passes,
         adq,
         uniqueModalities,
         totalFields,
+        maxConsecutiveMonotony,
+        mostMonotonousModality,
         hasRepetitionSuppressionHazard,
-        violation,
-        recommendation,
+        severity,
+        violation: violations.length > 0 ? violations.join(' ') : undefined,
+        recommendation: recommendations.length > 0 ? recommendations.join(' ') : undefined,
     };
 }
 /**

@@ -38,12 +38,12 @@ export const PSYCHOPHYSICAL_RATIOS = {
     LEADING_HEADING_MIN: 1.12,
     LEADING_HEADING_MAX: 1.30,
     // Typography Tracking (Letter-Spacing / Font-Size in em)
-    TRACKING_MICRO_MIN_EM: 0.025,
+    TRACKING_MICRO_MIN_EM: 0.02,
     TRACKING_DISPLAY_MAX_EM: 0.005,
     // APCA Contrast Lightness Floors
     APCA_MICRO_COPY_MIN: 70,
     APCA_BODY_READING_MIN: 75,
-    APCA_CONTROLS_MIN: 60,
+    APCA_CONTROLS_MIN: 65,
     // Concentric Corner Radius: Inner radius must equal max(0, OuterRadius - Padding)
     CONCENTRIC_RADIUS_TOLERANCE_PX: 2.0,
     // Focus Ring Geometry: Apple HIG & WCAG 2.2 SC 2.4.13
@@ -116,28 +116,45 @@ export function auditPsychophysicalRatios(input) {
     const recommendations = [];
     let deduction = 0;
     // 1. Macro Canvas Margin Ratio
-    const canvasMarginRatio = input.canvasMarginHorizontalPx / input.viewportWidthPx;
+    const vpWidth = Math.max(1, input.viewportWidthPx || 0);
+    const canvasMarginRatio = input.canvasMarginHorizontalPx / vpWidth;
     if (canvasMarginRatio < PSYCHOPHYSICAL_RATIOS.CANVAS_MARGIN_RATIO_MIN) {
         violations.push(`Canvas margin ratio (${(canvasMarginRatio * 100).toFixed(1)}%) is below the 4.0% psychophysical floor. Peripheral visual tension will occur.`);
         deduction += 15;
     }
     // 2. Macro Whitespace Ratio
-    const whitespaceRatio = Math.max(0, 1 - (input.contentWidthPx / input.viewportWidthPx) * 0.85);
+    const whitespaceRatio = Math.max(0, 1 - (input.contentWidthPx / vpWidth) * 0.85);
     if (input.viewportWidthPx >= 768 && whitespaceRatio < PSYCHOPHYSICAL_RATIOS.WHITESPACE_RATIO_MIN) {
         violations.push(`Canvas whitespace breathing ratio (${(whitespaceRatio * 100).toFixed(1)}%) is under the 20% floor, inducing claustrophobia.`);
         deduction += 15;
     }
     // 3. Meso Spatial Hierarchy Ratio (Gutter / Padding)
-    const spatialHierarchyRatio = input.interContainerGutterPx / input.intraContainerPaddingPx;
+    const intraPadding = Math.max(0.001, input.intraContainerPaddingPx || 0);
+    const spatialHierarchyRatio = input.interContainerGutterPx / intraPadding;
     if (spatialHierarchyRatio < PSYCHOPHYSICAL_RATIOS.SPATIAL_HIERARCHY_INEQUALITY_MIN) {
         violations.push(`Inter-container gutter to intra-padding ratio (${spatialHierarchyRatio.toFixed(2)}) is below 0.75. Cards will visually fuse into an undifferentiated mass.`);
         deduction += 20;
     }
+    // 3b. Outer Margin vs Inter-Container Gutter
+    if (input.canvasMarginHorizontalPx < input.interContainerGutterPx) {
+        violations.push(`Canvas horizontal margin (${input.canvasMarginHorizontalPx}px) is smaller than inter-container gutter (${input.interContainerGutterPx}px), creating peripheral tension.`);
+        deduction += 10;
+    }
+    // 3c. Micro Gestalt Enclosure Ratio (Padding / Child Gap)
+    let gestaltEnclosureRatio;
+    if (input.childGapPx !== undefined) {
+        const childGap = Math.max(0.001, input.childGapPx);
+        gestaltEnclosureRatio = input.intraContainerPaddingPx / childGap;
+        if (gestaltEnclosureRatio < PSYCHOPHYSICAL_RATIOS.GESTALT_ENCLOSURE_MIN) {
+            violations.push(`Gestalt enclosure ratio (${gestaltEnclosureRatio.toFixed(2)}) is below 1.00. Inner container padding (${input.intraContainerPaddingPx}px) is smaller than child gap (${input.childGapPx}px), violating Gestalt enclosure.`);
+            deduction += 15;
+        }
+    }
     // 4. Micro Gestalt Proximity Ratio
     let gestaltProximityRatio;
     if (input.labelToInputGapPx !== undefined && input.inputToNextGroupGapPx !== undefined) {
-        gestaltProximityRatio =
-            input.labelToInputGapPx === 0 ? 99 : input.inputToNextGroupGapPx / input.labelToInputGapPx;
+        const labelGap = Math.max(0.001, input.labelToInputGapPx);
+        gestaltProximityRatio = input.inputToNextGroupGapPx / labelGap;
         if (gestaltProximityRatio < PSYCHOPHYSICAL_RATIOS.GESTALT_PROXIMITY_MIN) {
             violations.push(`Gestalt proximity ratio (${gestaltProximityRatio.toFixed(2)}) is under 1.50. Field label visually uncouples from its input and adheres to preceding content.`);
             deduction += 25;
@@ -146,8 +163,8 @@ export function auditPsychophysicalRatios(input) {
     // 5. Micro Heading Clinging Ratio
     let headingClingingRatio;
     if (input.headingMarginTopPx !== undefined && input.headingMarginBottomPx !== undefined) {
-        headingClingingRatio =
-            input.headingMarginBottomPx === 0 ? 99 : input.headingMarginTopPx / input.headingMarginBottomPx;
+        const bottomMargin = Math.max(0.001, input.headingMarginBottomPx);
+        headingClingingRatio = input.headingMarginTopPx / bottomMargin;
         if (headingClingingRatio < PSYCHOPHYSICAL_RATIOS.HEADING_CLINGING_MIN) {
             violations.push(`Heading clinging ratio (${headingClingingRatio.toFixed(2)}) violates proximity law (minimum 2.0 required). Heading does not physically hug its section.`);
             deduction += 15;
@@ -156,7 +173,8 @@ export function auditPsychophysicalRatios(input) {
     // 6. Typographic Leading Ratio
     let leadingRatio;
     if (input.lineHeightPx !== undefined) {
-        leadingRatio = input.lineHeightPx / input.fontSizePx;
+        const fontSize = Math.max(0.001, input.fontSizePx || 0);
+        leadingRatio = input.lineHeightPx / fontSize;
         if (input.role === 'body') {
             if (leadingRatio < PSYCHOPHYSICAL_RATIOS.LEADING_BODY_MIN) {
                 violations.push(`Body leading ratio (${leadingRatio.toFixed(2)}) is crushed (minimum 1.45 required).`);
@@ -166,6 +184,21 @@ export function auditPsychophysicalRatios(input) {
         else if (input.role === 'display' || input.role === 'title') {
             if (leadingRatio > PSYCHOPHYSICAL_RATIOS.LEADING_HEADING_MAX) {
                 violations.push(`Title leading ratio (${leadingRatio.toFixed(2)}) is over-spaced (maximum 1.30 required for cohesive headlines).`);
+                deduction += 10;
+            }
+        }
+    }
+    // 6b. Typographic Tracking (Letter-Spacing)
+    if (input.letterSpacingEm !== undefined) {
+        if (input.fontSizePx <= 13) {
+            if (input.letterSpacingEm < PSYCHOPHYSICAL_RATIOS.TRACKING_MICRO_MIN_EM) {
+                violations.push(`Micro-copy (${input.fontSizePx}px) tracking (${input.letterSpacingEm}em) is squeezed: minimum +${PSYCHOPHYSICAL_RATIOS.TRACKING_MICRO_MIN_EM}em required to prevent glyph collision.`);
+                deduction += 10;
+            }
+        }
+        else if ((input.role === 'display' || input.role === 'title') && input.fontSizePx >= 28) {
+            if (input.letterSpacingEm > PSYCHOPHYSICAL_RATIOS.TRACKING_DISPLAY_MAX_EM) {
+                violations.push(`Display heading tracking (${input.letterSpacingEm}em) is over-spaced: maximum +${PSYCHOPHYSICAL_RATIOS.TRACKING_DISPLAY_MAX_EM}em allowed for cohesive headline typography.`);
                 deduction += 10;
             }
         }
@@ -182,14 +215,20 @@ export function auditPsychophysicalRatios(input) {
     // 8. APCA Lightness Contrast
     let apcaContrastLc;
     if (input.colorHex && input.bgHex) {
-        apcaContrastLc = Math.abs(calculateApca(input.colorHex, input.bgHex));
-        const floor = input.role === 'micro'
-            ? PSYCHOPHYSICAL_RATIOS.APCA_MICRO_COPY_MIN
-            : input.role === 'body'
-                ? PSYCHOPHYSICAL_RATIOS.APCA_BODY_READING_MIN
-                : PSYCHOPHYSICAL_RATIOS.APCA_CONTROLS_MIN;
-        if (apcaContrastLc < floor) {
-            violations.push(`Text contrast (Lc ${apcaContrastLc.toFixed(1)}) fails the APCA Lc ${floor} floor for ${input.role} copy. Washed-out grey ghosting detected.`);
+        try {
+            apcaContrastLc = Math.abs(calculateApca(input.colorHex, input.bgHex));
+            const floor = input.role === 'micro'
+                ? PSYCHOPHYSICAL_RATIOS.APCA_MICRO_COPY_MIN
+                : input.role === 'body'
+                    ? PSYCHOPHYSICAL_RATIOS.APCA_BODY_READING_MIN
+                    : PSYCHOPHYSICAL_RATIOS.APCA_CONTROLS_MIN;
+            if (apcaContrastLc < floor) {
+                violations.push(`Text contrast (Lc ${apcaContrastLc.toFixed(1)}) fails the APCA Lc ${floor} floor for ${input.role} copy. Washed-out grey ghosting detected.`);
+                deduction += 25;
+            }
+        }
+        catch (err) {
+            violations.push(`Text contrast evaluation failed: invalid color format (${err?.message ?? 'malformed hex'}).`);
             deduction += 25;
         }
     }
@@ -210,9 +249,11 @@ export function auditPsychophysicalRatios(input) {
             canvasMarginRatio: Math.round(canvasMarginRatio * 1000) / 1000,
             whitespaceRatio: Math.round(whitespaceRatio * 1000) / 1000,
             spatialHierarchyRatio: Math.round(spatialHierarchyRatio * 100) / 100,
+            gestaltEnclosureRatio: gestaltEnclosureRatio ? Math.round(gestaltEnclosureRatio * 100) / 100 : undefined,
             gestaltProximityRatio: gestaltProximityRatio ? Math.round(gestaltProximityRatio * 100) / 100 : undefined,
             headingClingingRatio: headingClingingRatio ? Math.round(headingClingingRatio * 100) / 100 : undefined,
             leadingRatio: leadingRatio ? Math.round(leadingRatio * 100) / 100 : undefined,
+            letterSpacingEm: input.letterSpacingEm !== undefined ? input.letterSpacingEm : undefined,
             touchToGlyphRatio: touchToGlyphRatio ? Math.round(touchToGlyphRatio * 100) / 100 : undefined,
             apcaContrastLc: apcaContrastLc ? Math.round(apcaContrastLc * 10) / 10 : undefined,
         },
@@ -322,5 +363,22 @@ export function auditChromostereopsisHazard(colorHex1, colorHex2) {
         violation: hasHazard
             ? `Severe chromostereopsis hazard detected between ${colorHex1} and ${colorHex2}. Saturated red and blue/cyan at adjacent borders cause retinal chromatic dispersion, making characters appear to jitter or vibrate in depth.`
             : undefined,
+    };
+}
+/**
+ * 9. Quantum Snapping & Remediation Hint Generator
+ * Computes exact nearest floor and ceiling multiples of the spatial quantum (e.g. 4px or 8px)
+ */
+export function getNearestQuantumRemediation(currentPx, quantumPx = 4) {
+    const isAligned = currentPx % quantumPx === 0;
+    const nearestFloorPx = Math.floor(currentPx / quantumPx) * quantumPx;
+    const nearestCeilPx = Math.ceil(currentPx / quantumPx) * quantumPx;
+    return {
+        isAligned,
+        nearestFloorPx,
+        nearestCeilPx,
+        recommendation: isAligned
+            ? `Dimension ${currentPx}px is perfectly aligned to the ${quantumPx}px quantum grid.`
+            : `Dimension ${currentPx}px is misaligned. Snap to nearest ${quantumPx}px quantum: ${nearestFloorPx}px (compact) or ${nearestCeilPx}px (spacious).`,
     };
 }

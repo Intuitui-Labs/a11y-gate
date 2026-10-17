@@ -17,6 +17,9 @@ import {
   runA11ySuite,
   auditReactNativeScreen,
   runReactNativeScreenAuditSuite,
+  auditThemeTokenSet,
+  evaluateCtaVisualDominance,
+  evaluatePolarThumbArc,
 } from '../src/index';
 
 describe('@intuitui-labs/a11y-gate Core Package', () => {
@@ -273,5 +276,68 @@ describe('Headless Mobile & Touch Ergonomics (src/mobile/index.ts)', () => {
 
     const lightBgText = getBestText('#ffffff', ['#2A2318', '#FCF9F2', '#FFFFFF', '#000000']);
     expect(['#000000', '#2A2318']).toContain(lightBgText);
+  });
+});
+
+describe('Theme Token Set Accessibility & Contrast Audit (auditThemeTokenSet)', () => {
+  it('validates a compliant dark theme token set across WCAG, APCA, CVD and chromatic dispersion', () => {
+    const result = auditThemeTokenSet({
+      name: 'swiss-dark',
+      background: '#0B0F17',
+      surface: '#151D2A',
+      textPrimary: '#FFFFFF',
+      textSecondary: '#CBD5E1',
+      textMuted: '#94A3B8',
+      primaryCtaBg: '#38BDF8',
+      primaryCtaFg: '#000000',
+    });
+
+    expect(result.passes).toBe(true);
+    expect(result.violations).toHaveLength(0);
+    expect(result.cvdPasses).toBe(true);
+    expect(result.hasChromostereopsisHazard).toBe(false);
+    expect(result.contrastMatrix.textPrimaryOnBg.passes).toBe(true);
+    expect(result.contrastMatrix.ctaTextOnCtaBg.passes).toBe(true);
+  });
+
+  it('detects chromostereopsis hazard and low contrast in flawed theme', () => {
+    const result = auditThemeTokenSet({
+      name: 'flawed-neon',
+      background: '#0022FF', // Saturated blue
+      surface: '#001188',
+      textPrimary: '#666666', // Washed out grey
+      textSecondary: '#555555',
+      textMuted: '#444444',
+      primaryCtaBg: '#FF0033', // Saturated red on blue background -> chromostereopsis!
+      primaryCtaFg: '#FFFFFF',
+    });
+
+    expect(result.passes).toBe(false);
+    expect(result.hasChromostereopsisHazard).toBe(true);
+    expect(result.violations.some((v) => v.includes('chromostereopsis'))).toBe(true);
+    expect(result.violations.some((v) => v.includes('Primary text on background'))).toBe(true);
+  });
+});
+
+describe('Consolidated Creative Cognition Exports from Root Package', () => {
+  it('exports evaluateCtaVisualDominance and evaluatePolarThumbArc seamlessly from root', () => {
+    const ctaRes = evaluateCtaVisualDominance([
+      { id: 'cta', text: 'Submit', isPrimaryCta: true, widthPx: 200, heightPx: 48, centerXPx: 200, centerYPx: 600, absLc: 90, fontWeight: 700 },
+      { id: 'info', text: 'Note', isPrimaryCta: false, widthPx: 60, heightPx: 24, centerXPx: 60, centerYPx: 200, absLc: 50, fontWeight: 400 },
+    ]);
+    expect(ctaRes.passes).toBe(true);
+    expect(ctaRes.ctaDominanceIndex).toBeGreaterThan(1.2);
+
+    const thumbRes = evaluatePolarThumbArc({
+      id: 'cta',
+      name: 'Submit',
+      centerXPx: 200,
+      centerYPx: 800,
+      isPrimaryAction: true,
+      viewportWidthPx: 390,
+      viewportHeightPx: 844,
+    });
+    expect(thumbRes.passes).toBe(true);
+    expect(thumbRes.primaryZone).toBe('Natural-Sweep');
   });
 });

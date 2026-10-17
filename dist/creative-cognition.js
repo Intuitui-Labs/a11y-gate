@@ -50,6 +50,7 @@ export function evaluateVisualSaliency(targets) {
         violations,
     };
 }
+export const evaluateCtaVisualDominance = evaluateVisualSaliency;
 /**
  * 2. Cognitive Load & Visual Shannon Entropy Index
  * Measures information disorder across color, typography, geometry, and density.
@@ -114,6 +115,7 @@ export function evaluateThumbZoneErgonomics(target) {
         violations,
     };
 }
+export const evaluatePolarThumbArc = evaluateThumbZoneErgonomics;
 /**
  * 4. Colorblind Dual-Encoding Verification
  * Ensures state is NEVER conveyed purely by color alone (WCAG 1.4.1).

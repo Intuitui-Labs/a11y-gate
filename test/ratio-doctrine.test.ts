@@ -148,6 +148,74 @@ describe('Pure-Ratio Psychophysical Doctrine Engine', () => {
       expect(result.ratios.gestaltProximityRatio).toBe(3);
       expect(result.ratios.headingClingingRatio).toBe(3);
     });
+
+    it('detects Gestalt enclosure violation when container padding is smaller than child gap', () => {
+      const enclosureViolation = {
+        viewportWidthPx: 1280,
+        viewportHeightPx: 900,
+        canvasMarginHorizontalPx: 48,
+        contentWidthPx: 800,
+        interContainerGutterPx: 24,
+        intraContainerPaddingPx: 12,
+        childGapPx: 20, // 12px padding < 20px child gap!
+        fontSizePx: 16,
+        fontWeight: 400,
+        role: 'body' as const,
+      };
+
+      const result = auditPsychophysicalRatios(enclosureViolation);
+      expect(result.passes).toBe(false);
+      expect(result.ratios.gestaltEnclosureRatio).toBe(0.6);
+      expect(result.violations.some((v) => v.includes('Gestalt enclosure ratio (0.60) is below 1.00'))).toBe(true);
+    });
+
+    it('detects squeezed micro-tracking and over-spaced display headline tracking', () => {
+      const squeezedMicro = auditPsychophysicalRatios({
+        viewportWidthPx: 390,
+        viewportHeightPx: 844,
+        canvasMarginHorizontalPx: 24,
+        contentWidthPx: 340,
+        interContainerGutterPx: 16,
+        intraContainerPaddingPx: 20,
+        fontSizePx: 12,
+        fontWeight: 500,
+        letterSpacingEm: -0.01, // < 0.02 floor!
+        role: 'micro' as const,
+      });
+
+      expect(squeezedMicro.violations.some((v) => v.includes('tracking (-0.01em) is squeezed'))).toBe(true);
+
+      const looseDisplay = auditPsychophysicalRatios({
+        viewportWidthPx: 1280,
+        viewportHeightPx: 900,
+        canvasMarginHorizontalPx: 64,
+        contentWidthPx: 800,
+        interContainerGutterPx: 24,
+        intraContainerPaddingPx: 24,
+        fontSizePx: 36,
+        fontWeight: 700,
+        letterSpacingEm: 0.05, // > 0.005 max!
+        role: 'display' as const,
+      });
+
+      expect(looseDisplay.violations.some((v) => v.includes('Display heading tracking (0.05em) is over-spaced'))).toBe(true);
+    });
+
+    it('detects peripheral tension when outer margin is tighter than inter-card gutter', () => {
+      const invertedMargins = auditPsychophysicalRatios({
+        viewportWidthPx: 1280,
+        viewportHeightPx: 900,
+        canvasMarginHorizontalPx: 16, // 16px < 32px gutter!
+        contentWidthPx: 1000,
+        interContainerGutterPx: 32,
+        intraContainerPaddingPx: 24,
+        fontSizePx: 16,
+        fontWeight: 400,
+        role: 'body' as const,
+      });
+
+      expect(invertedMargins.violations.some((v) => v.includes('Canvas horizontal margin (16px) is smaller than inter-container gutter'))).toBe(true);
+    });
   });
 
   describe('4. Concentric Corner Radius Canon', () => {

@@ -13,19 +13,27 @@ export interface AffordanceDiversitySpec {
     stepId?: string;
     fieldModalities: FormFieldModality[];
     minAdqThreshold?: number;
+    maxConsecutiveMonotonyThreshold?: number;
+    minFieldsForSuppressionHazard?: number;
+    isCohesiveSemanticGroup?: boolean;
 }
 export interface AffordanceDiversityResult {
     passes: boolean;
     adq: number;
     uniqueModalities: FormFieldModality[];
     totalFields: number;
+    maxConsecutiveMonotony: number;
+    mostMonotonousModality?: FormFieldModality;
     hasRepetitionSuppressionHazard: boolean;
+    severity: 'none' | 'advisory' | 'warning';
     violation?: string;
     recommendation?: string;
 }
 /**
  * Computes the Affordance Diversity Quotient (ADQ) of a form step.
  * Prevents "Grey Soup Syndrome" where users are subjected to endless identical text inputs.
+ * Enforces consecutive monotony threshold to break up long runs of repetitive inputs.
+ * Exempts short cohesive steps (<= 5 fields) to prevent false-positive CI blockers on standard forms.
  */
 export declare function auditAffordanceDiversity(spec: AffordanceDiversitySpec): AffordanceDiversityResult;
 export interface HotspotDispersionSpec {

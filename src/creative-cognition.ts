@@ -83,6 +83,9 @@ export function evaluateVisualSaliency(targets: InteractiveVisualTarget[]): Visu
   };
 }
 
+export type CtaDominanceResult = VisualSaliencyResult;
+export const evaluateCtaVisualDominance = evaluateVisualSaliency;
+
 export interface ViewportEntropySpec {
   viewportWidthPx: number;
   viewportHeightPx: number;
@@ -191,6 +194,8 @@ export function evaluateThumbZoneErgonomics(target: MobileThumbTarget): ThumbZon
     violations,
   };
 }
+
+export const evaluatePolarThumbArc = evaluateThumbZoneErgonomics;
 
 export interface CvdStateSpec {
   id: string;
