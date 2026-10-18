@@ -64,6 +64,8 @@ export interface OpticalStemSpec {
     fontWeight: number;
     fontFamily?: string;
     isRetinaOrHighDpi?: boolean;
+    fontSmoothing?: 'antialiased' | 'subpixel-antialiased' | 'auto';
+    isDarkCanvas?: boolean;
 }
 export interface OpticalStemResult {
     passes: boolean;
@@ -75,6 +77,8 @@ export interface OpticalStemResult {
 /**
  * Evaluates physical stem thickness to prevent stroke vibration and anti-aliasing collapse.
  * Standard regular weights have stem ratios of ~0.10. Bold weights have ~0.18 - 0.22.
+ * When grayscale antialiasing (-webkit-font-smoothing: antialiased) is forced on dark canvases,
+ * edge alpha feathering erodes ~20% of perceived optical stem mass on standard RGB subpixel displays.
  */
 export declare function auditOpticalStemThickness(spec: OpticalStemSpec): OpticalStemResult;
 export interface PsychophysicalRatioAuditInput {

@@ -70,6 +70,37 @@ describe('Pure-Ratio Psychophysical Doctrine Engine', () => {
       expect(res.hasSubpixelDiffractionHazard).toBe(false);
       expect(res.estimatedStemWidthPx).toBeGreaterThanOrEqual(PSYCHOPHYSICAL_RATIOS.OPTICAL_STEM_FLOOR_PX);
     });
+
+    it('detects severe optical stem erosion when grayscale antialiasing is forced on dark canvases', () => {
+      // 11px text @ weight 500 on light canvas: stem width = 11 * (0.06 + 0.08) = 1.54px (passes)
+      const lightCanvas = auditOpticalStemThickness({
+        fontSizePx: 11,
+        fontWeight: 500,
+        isDarkCanvas: false,
+      });
+      expect(lightCanvas.passes).toBe(true);
+
+      // Same 11px text @ 500 when grayscale antialiased on dark canvas:
+      // 1.54 * 0.8 = 1.23px (< 1.25px floor -> triggers diffraction hazard!)
+      const darkCanvasAntialiased = auditOpticalStemThickness({
+        fontSizePx: 11,
+        fontWeight: 500,
+        fontSmoothing: 'antialiased',
+        isDarkCanvas: true,
+      });
+      expect(darkCanvasAntialiased.passes).toBe(false);
+      expect(darkCanvasAntialiased.hasSubpixelDiffractionHazard).toBe(true);
+      expect(darkCanvasAntialiased.violation).toContain('grayscale antialiasing on dark canvas');
+
+      // Restoring subpixel smoothing avoids erosion penalty
+      const darkCanvasSubpixel = auditOpticalStemThickness({
+        fontSizePx: 11,
+        fontWeight: 500,
+        fontSmoothing: 'subpixel-antialiased',
+        isDarkCanvas: true,
+      });
+      expect(darkCanvasSubpixel.passes).toBe(true);
+    });
   });
 
   describe('3. Multi-Scale Psychophysical Ratios Audit', () => {

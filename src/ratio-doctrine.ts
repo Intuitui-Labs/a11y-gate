@@ -130,6 +130,8 @@ export interface OpticalStemSpec {
   fontWeight: number; // 100 - 900
   fontFamily?: string;
   isRetinaOrHighDpi?: boolean;
+  fontSmoothing?: 'antialiased' | 'subpixel-antialiased' | 'auto';
+  isDarkCanvas?: boolean;
 }
 
 export interface OpticalStemResult {
@@ -143,19 +145,27 @@ export interface OpticalStemResult {
 /**
  * Evaluates physical stem thickness to prevent stroke vibration and anti-aliasing collapse.
  * Standard regular weights have stem ratios of ~0.10. Bold weights have ~0.18 - 0.22.
+ * When grayscale antialiasing (-webkit-font-smoothing: antialiased) is forced on dark canvases,
+ * edge alpha feathering erodes ~20% of perceived optical stem mass on standard RGB subpixel displays.
  */
 export function auditOpticalStemThickness(spec: OpticalStemSpec): OpticalStemResult {
   // Approximate stem ratio based on CSS font weight (400 = ~0.10, 700 = ~0.18, 900 = ~0.24)
   const normalizedWeight = Math.max(100, Math.min(900, spec.fontWeight));
   const stemRatio = 0.06 + (normalizedWeight / 1000) * 0.16;
-  const estimatedStemWidthPx = Math.round(spec.fontSizePx * stemRatio * 100) / 100;
+  
+  // Grayscale smoothing on dark canvas causes 20% optical stem erosion vs subpixel/ClearType rendering
+  const smoothingFactor = (spec.fontSmoothing === 'antialiased' && spec.isDarkCanvas) ? 0.80 : 1.0;
+  const estimatedStemWidthPx = Math.round(spec.fontSizePx * stemRatio * smoothingFactor * 100) / 100;
 
   const hasSubpixelDiffractionHazard =
     spec.fontSizePx < 14 && estimatedStemWidthPx < PSYCHOPHYSICAL_RATIOS.OPTICAL_STEM_FLOOR_PX;
 
   let violation: string | undefined;
   if (hasSubpixelDiffractionHazard) {
-    violation = `Sub-14px font (${spec.fontSizePx}px @ weight ${spec.fontWeight}) has an estimated stem width of ${estimatedStemWidthPx}px, below the ${PSYCHOPHYSICAL_RATIOS.OPTICAL_STEM_FLOOR_PX}px optical threshold. This causes stroke vibration and anti-aliasing blur. Elevate font-weight to at least 600 or increase font-size.`;
+    const smoothingNote = spec.fontSmoothing === 'antialiased' && spec.isDarkCanvas
+      ? ' with grayscale antialiasing on dark canvas (inducing 20% raster stem erosion)'
+      : '';
+    violation = `Sub-14px font (${spec.fontSizePx}px @ weight ${spec.fontWeight}${smoothingNote}) has an estimated stem width of ${estimatedStemWidthPx}px, below the ${PSYCHOPHYSICAL_RATIOS.OPTICAL_STEM_FLOOR_PX}px optical threshold. This causes stroke vibration and anti-aliasing blur. Elevate font-weight to at least 600, switch to subpixel-antialiased rendering, or increase font-size.`;
   }
 
   return {
