@@ -23,4 +23,5 @@ export * from './ratio-doctrine.js';
 export * from './hotspot-diversity.js';
 export * from './comprehensive-gate.js';
 export * from './schema-adapter.js';
+export * from './proportional-scale.js';
 export { auditCvdDualEncoding, evaluateCognitiveEntropy, evaluateCtaVisualDominance, evaluatePolarThumbArc, type CvdStateSpec, type CvdDualEncodingResult, type ViewportEntropySpec, type CognitiveEntropyResult, type InteractiveVisualTarget, type CtaDominanceResult, type MobileThumbTarget, type ThumbZoneErgonomicsResult, } from './creative-cognition.js';

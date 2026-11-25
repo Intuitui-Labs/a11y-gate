@@ -8,6 +8,15 @@
  */
 import { AxeResultsLike, AxeBaselineAuditResult } from './axe-baseline.js';
 import { type TextRole, type Wcag3ConformanceLevel, type Wcag3FontWeightMatrix } from './wcag3.js';
+import { type ProportionalSpacingSpec, type ProportionalSpacingResult, type SpacingConformanceLevel } from './proportional-scale.js';
+export declare const DUAL_STANDARD_DOCTRINE: {
+    readonly baselineCompliance: 'WCAG 2.2 AA (Statutory Legal Minimum)';
+    readonly adoptedStandard: 'WCAG 3.0 / W3C APCA 0.98G (Sovereign Architectural Standard)';
+    readonly rules: {
+        readonly statutoryBaseline: 'Enforces non-negotiable legal floor (4.5:1 / 3:1 relative luminance, 24px targets). Any failure is a hard build veto.';
+        readonly adoptedStandard: 'Primary design engineering standard (APCA Lc >= 75 body, asymmetric polarity, continuous optical tracking and leading curves).';
+    };
+};
 export interface HtmlCsMessage {
     type: 'error' | 'warning' | 'notice';
     code: string;
@@ -80,6 +89,7 @@ export interface MultiStandardSpec {
     htmlCsMessages?: HtmlCsMessage[];
     semanticSpec?: SemanticHtml5CheckSpec;
     colorPairs?: MultiStandardColorPairSpec[];
+    spacingSpecs?: ProportionalSpacingSpec[];
 }
 export interface MultiStandardResult {
     name: string;
@@ -94,17 +104,24 @@ export interface MultiStandardResult {
         semantic?: SemanticHtml5Result;
         wcag2PassCount: number;
         wcag2FailCount: number;
+        spacingHardFailCount: number;
     };
     standardWcag3: {
         passesPerceptualStandard: boolean;
         evaluatedPairs: DualStandardContrastResult[];
         conformanceTiers: Record<Wcag3ConformanceLevel, number>;
     };
+    spacing: {
+        passesSpacingBaseline: boolean;
+        spacingTier: SpacingConformanceLevel;
+        evaluatedElements: ProportionalSpacingResult[];
+    };
     compositeSummary: {
         totalViolations: number;
         grade: 'AAA' | 'AA' | 'Fail';
         baselineGrade: 'AAA' | 'AA' | 'Fail';
         wcag3StandardTier: Wcag3ConformanceLevel;
+        spacingTier: SpacingConformanceLevel;
         isFullyCompliant: boolean;
         summaryText: string;
     };

@@ -155,7 +155,7 @@ export function auditThemeTokenSet(theme) {
     const textSecondaryOnBg = evaluatePair('Secondary text on background', theme.textSecondary, theme.background, 4.5, 60);
     const textSecondaryOnSurface = evaluatePair('Secondary text on surface', theme.textSecondary, theme.surface, 4.5, 60);
     const textMutedOnBg = evaluatePair('Muted text on background', theme.textMuted, theme.background, 3.0, 45);
-    const ctaTextOnCtaBg = evaluatePair('CTA text on CTA background', theme.primaryCtaFg, theme.primaryCtaBg, 4.5, 65);
+    const ctaTextOnCtaBg = evaluatePair('CTA text on CTA background', theme.primaryCtaFg, theme.primaryCtaBg, 4.5, 60);
     const ctaBgOnSurface = evaluatePair('CTA button on surface', theme.primaryCtaBg, theme.surface, 3.0, 45);
     // CVD Simulation on Primary Text vs Background
     const cvdTypes = ['deuteranopia', 'protanopia', 'tritanopia'];

@@ -9,6 +9,15 @@
 import { evaluateAxeBaseline } from './axe-baseline.js';
 import { evaluateWcag } from './contrast-math.js';
 import { evaluateWcag3, } from './wcag3.js';
+import { auditProportionalSpacing, } from './proportional-scale.js';
+export const DUAL_STANDARD_DOCTRINE = {
+    baselineCompliance: 'WCAG 2.2 AA (Statutory Legal Minimum)',
+    adoptedStandard: 'WCAG 3.0 / W3C APCA 0.98G (Sovereign Architectural Standard)',
+    rules: {
+        statutoryBaseline: 'Enforces non-negotiable legal floor (4.5:1 / 3:1 relative luminance, 24px targets). Any failure is a hard build veto.',
+        adoptedStandard: 'Primary design engineering standard (APCA Lc >= 75 body, asymmetric polarity, continuous optical tracking and leading curves).',
+    },
+};
 export function evaluateHtmlCsBaseline(messages) {
     const errors = messages.filter(m => m.type === 'error');
     const warnings = messages.filter(m => m.type === 'warning');
@@ -165,13 +174,43 @@ export function auditMultiStandardBaseline(spec) {
                 wcag3FailCount++;
         }
     }
+    // Evaluate Proportional Spacing & Typographic Tiers if provided
+    const evaluatedSpacing = [];
+    let spacingHardFailCount = 0;
+    const spacingTiers = {
+        Gold: 0,
+        Silver: 0,
+        Bronze: 0,
+        Fail: 0,
+    };
+    if (spec.spacingSpecs && spec.spacingSpecs.length > 0) {
+        for (const sp of spec.spacingSpecs) {
+            const res = auditProportionalSpacing(sp);
+            evaluatedSpacing.push(res);
+            spacingTiers[res.level]++;
+            if (res.isHardBaselineFailure) {
+                spacingHardFailCount++;
+            }
+        }
+    }
+    let overallSpacingTier = 'Gold';
+    if (spacingTiers.Fail > 0)
+        overallSpacingTier = 'Fail';
+    else if (spacingTiers.Bronze > 0)
+        overallSpacingTier = 'Bronze';
+    else if (spacingTiers.Silver > 0)
+        overallSpacingTier = 'Silver';
+    else if (evaluatedSpacing.length === 0)
+        overallSpacingTier = 'Gold';
     const baselineViolations = axe.violationCount +
         (htmlcs?.errorCount ?? 0) +
         (semantic?.violations.length ?? 0) +
-        wcag2FailCount;
+        wcag2FailCount +
+        spacingHardFailCount;
     const passesLegalBaseline = baselineViolations === 0;
     const passesPerceptualStandard = wcag3FailCount === 0;
-    const passesAllStandards = passesLegalBaseline && passesPerceptualStandard;
+    const passesSpacingBaseline = spacingHardFailCount === 0;
+    const passesAllStandards = passesLegalBaseline && passesPerceptualStandard && passesSpacingBaseline;
     let baselineGrade = 'Fail';
     if (passesLegalBaseline) {
         const hasHtmlCsContrastErrors = htmlcs ? htmlcs.contrastErrors.length > 0 : false;
@@ -190,8 +229,8 @@ export function auditMultiStandardBaseline(spec) {
     else if (evaluatedPairs.length === 0)
         wcag3StandardTier = 'Gold';
     const summaryText = passesAllStandards
-        ? `All standards satisfied. Legal Baseline Grade: ${baselineGrade}. Modern WCAG 3 Standard Tier: ${wcag3StandardTier}.`
-        : `Standards violation detected. Legal Baseline: ${baselineGrade} (${baselineViolations} issues). Modern WCAG 3: ${wcag3StandardTier}.`;
+        ? `All standards satisfied. Legal Baseline Grade: ${baselineGrade}. Modern WCAG 3 Standard Tier: ${wcag3StandardTier}. Spacing Tier: ${overallSpacingTier}.`
+        : `Standards violation detected. Legal Baseline: ${baselineGrade} (${baselineViolations} issues). Modern WCAG 3: ${wcag3StandardTier}. Spacing Tier: ${overallSpacingTier}.`;
     return {
         name: spec.name,
         passesAllStandards,
@@ -205,17 +244,24 @@ export function auditMultiStandardBaseline(spec) {
             semantic,
             wcag2PassCount,
             wcag2FailCount,
+            spacingHardFailCount,
         },
         standardWcag3: {
             passesPerceptualStandard,
             evaluatedPairs,
             conformanceTiers,
         },
+        spacing: {
+            passesSpacingBaseline,
+            spacingTier: overallSpacingTier,
+            evaluatedElements: evaluatedSpacing,
+        },
         compositeSummary: {
             totalViolations: baselineViolations + wcag3FailCount,
             grade: baselineGrade,
             baselineGrade,
             wcag3StandardTier,
+            spacingTier: overallSpacingTier,
             isFullyCompliant: passesAllStandards,
             summaryText,
         },

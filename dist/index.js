@@ -23,5 +23,6 @@ export * from './ratio-doctrine.js';
 export * from './hotspot-diversity.js';
 export * from './comprehensive-gate.js';
 export * from './schema-adapter.js';
+export * from './proportional-scale.js';
 // Creative cognition additions
 export { auditCvdDualEncoding, evaluateCognitiveEntropy, evaluateCtaVisualDominance, evaluatePolarThumbArc, } from './creative-cognition.js';

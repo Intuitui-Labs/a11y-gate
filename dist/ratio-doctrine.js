@@ -10,6 +10,7 @@
  * 4. APCA Lightness Contrast: Spatial-frequency dependent photoreceptor inhibition
  */
 import { calculateApca } from './contrast-math.js';
+import { computeProportionalLeading, computeProportionalTracking } from './proportional-scale.js';
 // ── 1. MATHEMATICAL RATIO CONSTANTS ──────────────────────────────────
 export const PSYCHOPHYSICAL_RATIOS = {
     // Proximity Law: Next-group gap must exceed label-input gap by at least 1.5x
@@ -177,37 +178,34 @@ export function auditPsychophysicalRatios(input) {
             deduction += 15;
         }
     }
-    // 6. Typographic Leading Ratio
+    // 6. Proportional Typographic Leading Ratio
     let leadingRatio;
     if (input.lineHeightPx !== undefined) {
         const fontSize = Math.max(0.001, input.fontSizePx || 0);
         leadingRatio = input.lineHeightPx / fontSize;
-        if (input.role === 'body') {
-            if (leadingRatio < PSYCHOPHYSICAL_RATIOS.LEADING_BODY_MIN) {
-                violations.push(`Body leading ratio (${leadingRatio.toFixed(2)}) is crushed (minimum 1.45 required).`);
-                deduction += 15;
-            }
+        const propLeading = computeProportionalLeading(input.fontSizePx, input.role === 'title' ? 'headline' : input.role);
+        if (leadingRatio < propLeading.minRatio) {
+            violations.push(`${input.role} leading ratio (${leadingRatio.toFixed(2)}) is crushed (minimum proportional ${propLeading.minRatio}x required for ${input.fontSizePx}px font).`);
+            deduction += 15;
         }
-        else if (input.role === 'display' || input.role === 'title') {
-            if (leadingRatio > PSYCHOPHYSICAL_RATIOS.LEADING_HEADING_MAX) {
-                violations.push(`Title leading ratio (${leadingRatio.toFixed(2)}) is over-spaced (maximum 1.30 required for cohesive headlines).`);
-                deduction += 10;
-            }
+        else if (leadingRatio > propLeading.maxRatio) {
+            violations.push(`${input.role} leading ratio (${leadingRatio.toFixed(2)}) is over-spaced (maximum proportional ${propLeading.maxRatio}x allowed for ${input.fontSizePx}px font).`);
+            deduction += 10;
         }
     }
-    // 6b. Typographic Tracking (Letter-Spacing)
+    // 6b. Proportional Typographic Tracking (Letter-Spacing)
     if (input.letterSpacingEm !== undefined) {
-        if (input.fontSizePx <= 13) {
-            if (input.letterSpacingEm < PSYCHOPHYSICAL_RATIOS.TRACKING_MICRO_MIN_EM) {
-                violations.push(`Micro-copy (${input.fontSizePx}px) tracking (${input.letterSpacingEm}em) is squeezed: minimum +${PSYCHOPHYSICAL_RATIOS.TRACKING_MICRO_MIN_EM}em required to prevent glyph collision.`);
-                deduction += 10;
-            }
+        const propTracking = computeProportionalTracking(input.fontSizePx);
+        if (input.letterSpacingEm < propTracking.minEm) {
+            const prefix = input.fontSizePx <= 13 ? `Micro-copy (${input.fontSizePx}px)` : `Text (${input.fontSizePx}px)`;
+            violations.push(`${prefix} tracking (${input.letterSpacingEm}em) is squeezed below proportional optical floor (${propTracking.minEm}em). Visual crowding hazard.`);
+            deduction += 10;
         }
-        else if ((input.role === 'display' || input.role === 'title') && input.fontSizePx >= 28) {
-            if (input.letterSpacingEm > PSYCHOPHYSICAL_RATIOS.TRACKING_DISPLAY_MAX_EM) {
-                violations.push(`Display heading tracking (${input.letterSpacingEm}em) is over-spaced: maximum +${PSYCHOPHYSICAL_RATIOS.TRACKING_DISPLAY_MAX_EM}em allowed for cohesive headline typography.`);
-                deduction += 10;
-            }
+        else if (input.letterSpacingEm > propTracking.maxEm) {
+            const isDisplayHeading = (input.role === 'display' || input.role === 'title') || input.fontSizePx >= 24;
+            const prefix = isDisplayHeading ? 'Display heading tracking' : `Text (${input.fontSizePx}px) tracking`;
+            violations.push(`${prefix} (${input.letterSpacingEm}em) is over-spaced above proportional optical ceiling (${propTracking.maxEm}em).`);
+            deduction += 10;
         }
     }
     // 7. Touch Target to Glyph Ratio

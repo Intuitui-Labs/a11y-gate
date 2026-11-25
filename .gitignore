@@ -2,7 +2,6 @@
 node_modules/
 
 # Production build artifacts
-dist/
 build/
 
 # Cache and temporary files

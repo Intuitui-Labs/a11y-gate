@@ -7,6 +7,9 @@
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "bin": {
+    "a11y-gate": "dist/cli.js"
+  },
   "files": [
     "dist",
     "src/styles",
@@ -63,6 +66,16 @@
       "types": "./dist/test-runner.d.ts",
       "import": "./dist/test-runner.js",
       "default": "./dist/test-runner.js"
+    },
+    "./proportional": {
+      "types": "./dist/proportional-scale.d.ts",
+      "import": "./dist/proportional-scale.js",
+      "default": "./dist/proportional-scale.js"
+    },
+    "./ratio": {
+      "types": "./dist/ratio-doctrine.d.ts",
+      "import": "./dist/ratio-doctrine.js",
+      "default": "./dist/ratio-doctrine.js"
     },
     "./tokens": {
       "types": "./dist/token-types.d.ts",

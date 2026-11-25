@@ -124,6 +124,8 @@ const deltaYmin = 0.0005;
 const scaleBoW = 1.14;
 const scaleWoB = 1.14;
 const loClip = 0.1;
+const loBoWoffset = 0.027;
+const loWoBoffset = 0.027;
 
 function apcaLinear(c255: number): number {
   return Math.pow(c255 / 255, 2.4);
@@ -155,23 +157,21 @@ export function calculateApca(textColor: RGB | string, bgColor: RGB | string): n
     return 0;
   }
 
-  let sapc = 0;
+  let outputContrast = 0;
 
   if (yBg > yTxt) {
     const sBg = Math.pow(yBg, normBG);
     const sTxt = Math.pow(yTxt, normTXT);
-    sapc = (sBg - sTxt) * scaleBoW;
+    const sapc = (sBg - sTxt) * scaleBoW;
+    outputContrast = sapc < loClip ? 0.0 : sapc - loBoWoffset;
   } else {
     const sBg = Math.pow(yBg, revBG);
     const sTxt = Math.pow(yTxt, revTXT);
-    sapc = (sBg - sTxt) * scaleWoB;
+    const sapc = (sBg - sTxt) * scaleWoB;
+    outputContrast = sapc > -loClip ? 0.0 : sapc + loWoBoffset;
   }
 
-  if (Math.abs(sapc) < loClip) {
-    return 0;
-  }
-
-  return Math.round(sapc * 100 * 10) / 10;
+  return Math.round(outputContrast * 100 * 10) / 10;
 }
 
 export interface ApcaEvaluation {

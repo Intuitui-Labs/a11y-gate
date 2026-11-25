@@ -32,6 +32,22 @@ Modern accessibility often obsesses over arbitrary static scalar thresholds ($16
 - **Modulation Transfer Function (MTF)**: Foveal optical diffraction blurs stroke stems below $1.25\text{px}$.
 - **Concentricity Canon**: Concentric rounded corners must satisfy $R_{\text{inner}} = \max(0, R_{\text{outer}} - \text{Padding})$.
 
+### 1.1 Dual-Standard Governance: Legal Compliance Baseline vs. Sovereign Adopted Standard
+
+`@intuitui-labs/a11y-gate` enforces a strict two-tier architectural separation:
+
+1. **WCAG 2.2 Level AA/AAA (Statutory Legal Compliance Baseline)**:
+   - The non-negotiable legal floor required by international and federal law (ADA Titles II/III, Section 508, EU EN 301 549).
+   - Provides hard-gate verification: $4.5:1$ normal text, $3:1$ large text/UI components, $24\text{px} \times 24\text{px}$ minimum target size, and focus appearance.
+   - Any violation of this tier is a **Hard Baseline Veto** that fails builds and CI gates.
+
+2. **WCAG 3.0 / W3C APCA 0.98G (Sovereign Adopted Standard)**:
+   - The primary design engineering and visual science standard adopted across our design systems.
+   - Replaces binary scalar ratios with spatial-frequency dependent photoreceptor modeling:
+     - Asymmetric lightness contrast ($L_c$) recognizing dark-mode pupil dilation versus light-mode constriction.
+     - Continuous optical tracking and leading curves dynamically derived per font size.
+     - Conformance tiering: **Gold** ($L_c \ge 90$ / Swiss SILK), **Silver** ($L_c \ge 75$ body text), **Bronze** ($L_c \ge 60$ large text), and **Component** ($L_c \ge 45$).
+
 `@intuitui-labs/a11y-gate` is built from the ground up to enforce these laws mathematically in automated CI/CD pipelines.
 
 ---
@@ -83,6 +99,17 @@ yarn add @intuitui-labs/a11y-gate
 - **WCAG 2.1 / 2.2 Relative Luminance**: Standard ISO 9241-306 contrast calculations.
 - **Color Vision Deficiency (CVD) Simulation**: Full Brettel-Viénot / Machado LMS cone transformations (Deuteranopia, Protanopia, Tritanopia, Achromatopsia).
 - **Chromostereopsis Hazard Detection**: Prevents saturated red/blue optical depth vibration.
+
+### 3.6 Proportional Typographic & Spatial Scaling Engine
+- **Continuous Optical Tracking Curve**: Inversely proportional letter spacing ($+0.04\text{em}$ on microcopy down to $-0.022\text{em}$ on display).
+- **Continuous Optical Leading Curve**: Role-aware line height ($1.62\times$ on captions down to $1.10\times$ on display titles).
+- **Proportional Word & Container Spacing**: WCAG 1.4.12 word spacing floor ($0.16\times$) and Gestalt enclosure ($\text{Padding} \ge \text{Gap}$).
+- **9 Canonical Semantic Roles & Floors**: Micro ($11\text{px}$), Caption ($12\text{px}$), Body Small ($14\text{px}$), Body ($16\text{px}$ / $16\text{px}$ mobile floor), Subhead ($20\text{px}$), H3 ($24\text{px}$), H2 ($32\text{px}$), H1 ($40\text{px}$), Display ($56\text{px}$).
+- **Geometric Modular Scale Generator**: $S_n = S_0 \cdot r^n$ across Major Second ($1.125$), Minor Third ($1.200$), Major Third ($1.250$), and Perfect Fourth ($1.333$).
+- **Hard Legal Baseline Failures & Conformance Tiers**: Sub-12px, crushed leading ($< 1.30\times$), negative tracking on small text, and container rupture fail the baseline; layouts are tiered into Gold, Silver, Bronze, and Fail.
+
+### 3.7 Zero-Dependency Command-Line Interface (CLI)
+- Execute `a11y-gate scale`, `a11y-gate contrast`, `a11y-gate spacing`, `a11y-gate role`, and `a11y-gate audit <file.json>` directly in the terminal or CI runners.
 
 ---
 
@@ -155,10 +182,62 @@ const card = auditConcentricCornerRadius({
 console.log(card.passes); // true
 ```
 
+### 4.4 Proportional Typographic & Spatial Audit
+```typescript
+import { auditProportionalSpacing } from '@intuitui-labs/a11y-gate';
+
+const result = auditProportionalSpacing({
+  fontSizePx: 16,
+  lineHeightPx: 24,        // 1.50x
+  letterSpacingEm: 0.005,  // Optical comfort band
+  containerPaddingPx: 24,
+  childGapPx: 16,          // Enclosure ratio: 1.50 (>= 1.0)
+  role: 'body',
+});
+
+console.log(result.level);                 // 'Gold'
+console.log(result.score);                 // 100
+console.log(result.isHardBaselineFailure); // false
+```
+
+### 4.5 Generating a Modular Typographic Scale
+```typescript
+import { generateModularTypographicScale } from '@intuitui-labs/a11y-gate';
+
+const scale = generateModularTypographicScale({
+  basePx: 16,
+  ratio: 'major-third', // 1.250
+});
+
+console.log(scale.body);
+// { fontSizePx: 16, lineHeightPx: 24.3, leadingRatio: 1.52, letterSpacingEm: 0.005, minContrastLc: 60 }
+console.log(scale.display);
+// { fontSizePx: 49, lineHeightPx: 53.9, leadingRatio: 1.10, letterSpacingEm: -0.022, minContrastLc: 40 }
+```
+
+### 4.6 Using the Command-Line Interface (CLI)
+```bash
+# Print modular scale table:
+npx a11y-gate scale --base 16 --ratio major-third
+
+# Audit APCA contrast:
+npx a11y-gate contrast --fg "#0F172A" --bg "#FFFFFF" --role body
+
+# Check proportional spacing and container enclosure:
+npx a11y-gate spacing --size 16 --line-height 24 --tracking 0.005em --padding 24 --gap 16
+
+# Validate role minimum floors (e.g. 16px mobile input floor):
+npx a11y-gate role --name body --size 14 --mobile
+
+# Run gate audit on a design system JSON spec:
+npx a11y-gate audit ./design-spec.json
+```
+
 ---
 
 ## 5. Exhaustive Documentation Suite
 
+- [Proportional Typographic & Spatial Scale Doctrine](docs/proportional-typographic-and-spatial-scale.md)
 - [Pure-Ratio Psychophysical Doctrine](docs/psychophysical-ratio-doctrine.md)
 - [Hotspot Dynamics, Affordance Diversity & Adaptive Density](docs/hotspot-diversity-and-density.md)
 - [Convolutional Spatial Affordance Matrix](docs/convolutional-spatial-matrix.md)

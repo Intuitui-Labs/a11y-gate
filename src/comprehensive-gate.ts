@@ -57,6 +57,13 @@ import {
   type SchemaAffordanceAuditResult,
 } from './schema-adapter.js';
 
+import {
+  auditProportionalSpacing,
+  type ProportionalSpacingSpec,
+  type ProportionalSpacingResult,
+  type SpacingConformanceLevel,
+} from './proportional-scale.js';
+
 import type { Wcag3ConformanceLevel } from './wcag3.js';
 
 export interface ComprehensiveA11yGateSpec {
@@ -65,6 +72,7 @@ export interface ComprehensiveA11yGateSpec {
   ratioSpec?: PsychophysicalRatioAuditInput;
   fields?: FormSchemaField[];
   schemaStep?: FormStepSchema;
+  spacingSpecs?: ProportionalSpacingSpec[];
   hotspots?: {
     fieldModalities: FormFieldModality[];
     minAdqThreshold?: number;
@@ -91,6 +99,7 @@ export interface ComprehensiveSubsystemSummary {
   themePassed: boolean;
   baselinePassed: boolean;
   wcag3Passed: boolean;
+  spacingPassed: boolean;
 }
 
 export interface ComprehensiveA11yGateResult {
@@ -100,6 +109,7 @@ export interface ComprehensiveA11yGateResult {
   grade: 'AAA' | 'AA' | 'A' | 'Fail';
   wcag3Tier: Wcag3ConformanceLevel;
   baselineGrade: 'AAA' | 'AA' | 'Fail';
+  spacingTier: SpacingConformanceLevel;
   subsystems: ComprehensiveSubsystemSummary;
   errors: string[];
   advisories: string[];
@@ -115,6 +125,7 @@ export interface ComprehensiveA11yGateResult {
     saliency?: CtaDominanceResult;
     entropy?: CognitiveEntropyResult;
     thumbErgonomics?: ThumbZoneErgonomicsResult;
+    proportionalSpacing?: ProportionalSpacingResult[];
   };
 }
 
@@ -138,6 +149,8 @@ export function auditComprehensiveA11yGate(
   let themePassed = true;
   let baselinePassed = true;
   let wcag3Passed = true;
+  let spacingPassed = true;
+  let spacingTier: SpacingConformanceLevel = 'Gold';
 
   const detailedReports: ComprehensiveA11yGateResult['detailedReports'] = {};
 
@@ -328,6 +341,51 @@ export function auditComprehensiveA11yGate(
     }
   }
 
+  // 9. Proportional Typographic & Spatial Spacing Evaluation
+  if (spec.spacingSpecs && spec.spacingSpecs.length > 0) {
+    try {
+      const spacingResults: ProportionalSpacingResult[] = [];
+      const tierCounts: Record<SpacingConformanceLevel, number> = {
+        Gold: 0,
+        Silver: 0,
+        Bronze: 0,
+        Fail: 0,
+      };
+
+      for (const sp of spec.spacingSpecs) {
+        const res = auditProportionalSpacing(sp);
+        spacingResults.push(res);
+        tierCounts[res.level]++;
+
+        if (res.isHardBaselineFailure) {
+          errors.push(...res.hardBaselineViolations);
+        }
+        if (res.advisories.length > 0) {
+          advisories.push(...res.advisories);
+        }
+        if (res.remediations.length > 0) {
+          remediations.push(...res.remediations);
+        }
+      }
+
+      detailedReports.proportionalSpacing = spacingResults;
+
+      if (tierCounts.Fail > 0) spacingTier = 'Fail';
+      else if (tierCounts.Bronze > 0) spacingTier = 'Bronze';
+      else if (tierCounts.Silver > 0) spacingTier = 'Silver';
+      else spacingTier = 'Gold';
+
+      spacingPassed = spacingTier !== 'Fail';
+      if (!spacingPassed) {
+        errors.push(`Proportional spacing failed: Tier ${spacingTier}`);
+      }
+    } catch (err: any) {
+      spacingPassed = false;
+      spacingTier = 'Fail';
+      errors.push(`Proportional spacing audit crash: ${err?.message ?? 'unknown'}`);
+    }
+  }
+
   // Combined violations list for backwards compatibility
   const allViolations = [...errors, ...advisories];
 
@@ -357,6 +415,7 @@ export function auditComprehensiveA11yGate(
     grade,
     wcag3Tier,
     baselineGrade,
+    spacingTier,
     subsystems: {
       ratioPassed,
       diversityPassed,
@@ -367,6 +426,7 @@ export function auditComprehensiveA11yGate(
       themePassed,
       baselinePassed,
       wcag3Passed,
+      spacingPassed,
     },
     errors,
     advisories,
