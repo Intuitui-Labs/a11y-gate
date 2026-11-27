@@ -1,5 +1,9 @@
 # Accessibility Gate (`@intuitui-labs/a11y-gate`)
 
+> [!NOTE]
+> **Repository Status: Stalled (2026-11-27)**  
+> Active development on this repository is paused indefinitely because the primary maintainer is unavailable (bus factor).
+
 [![CI](https://github.com/Intuitui-Labs/a11y-gate/actions/workflows/ci.yml/badge.svg)](https://github.com/Intuitui-Labs/a11y-gate/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/@intuitui-labs/a11y-gate?style=flat-square&color=2563EB)](https://www.npmjs.com/package/@intuitui-labs/a11y-gate)
 [![Downloads](https://img.shields.io/npm/dm/@intuitui-labs/a11y-gate?style=flat-square&color=059669)](https://www.npmjs.com/package/@intuitui-labs/a11y-gate)
